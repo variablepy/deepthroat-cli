@@ -32,7 +32,7 @@ try {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = [IO.Compression.ZipFile]::OpenRead($archive)
     try {
-        if ($zip.Entries.Count -ne 2 -or @($zip.Entries | Where-Object { $_.FullName -ceq 'deepthroat.exe' }).Count -ne 1 -or @($zip.Entries | Where-Object { $_.FullName -ceq 'LICENSE.txt' }).Count -ne 1) { throw 'The release archive has unexpected contents.' }
+        if ($zip.Entries.Count -ne 3 -or @($zip.Entries | Where-Object { $_.FullName -ceq 'integration.ps1' }).Count -ne 1 -or @($zip.Entries | Where-Object { $_.FullName -ceq 'deepthroat.exe' }).Count -ne 1 -or @($zip.Entries | Where-Object { $_.FullName -ceq 'LICENSE.txt' }).Count -ne 1) { throw 'The release archive has unexpected contents.' }
     } finally { $zip.Dispose() }
     [IO.Compression.ZipFile]::ExtractToDirectory($archive, $unpacked)
     $binary = Join-Path $unpacked 'deepthroat.exe'
@@ -40,15 +40,13 @@ try {
     $reported = & $binary --version
     if ($LASTEXITCODE -ne 0 -or ($reported -join "`n") -ne "deepthroat $tag") { throw 'The downloaded executable failed its version check.' }
     $target = [IO.Path]::GetFullPath($directory)
+    $existing = Join-Path $target 'DeepThroat.exe'
+    if ((Test-Path -LiteralPath $existing) -and [Diagnostics.FileVersionInfo]::GetVersionInfo($existing).ProductName -eq 'DeepThroat') { throw 'Choose a CLI directory separate from the desktop application.' }
     $null = New-Item -ItemType Directory -Path $target -Force
     Copy-Item -LiteralPath $binary -Destination (Join-Path $target 'deepthroat.exe') -Force
     Copy-Item -LiteralPath (Join-Path $unpacked 'LICENSE.txt') -Destination (Join-Path $target 'LICENSE.txt') -Force
-    $current = [Environment]::GetEnvironmentVariable('Path', 'User')
-    $entries = @($current -split ';' | Where-Object { $_ })
-    if (-not ($entries | Where-Object { $_.TrimEnd('\') -ieq $target.TrimEnd('\') })) {
-        [Environment]::SetEnvironmentVariable('Path', (($entries + $target) -join ';'), 'User')
-    }
-    $env:Path = "$target;$env:Path"
+    Copy-Item -LiteralPath (Join-Path $unpacked 'integration.ps1') -Destination (Join-Path $target 'integration.ps1') -Force
+    & (Join-Path $target 'integration.ps1') -action standalone -directory $target
     Write-Host "Installed DeepThroat CLI $tag. Run deepthroat auth login to connect your account."
     Write-Host 'Open a new terminal to use deepthroat in other sessions.'
 } finally {

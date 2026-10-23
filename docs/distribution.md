@@ -12,7 +12,7 @@ bun run --cwd packages/cli script/build.ts --single --skip-install --skip-web-ui
 bun run packages/cli/script/package-release.ts
 ```
 
-The packager writes `artifacts/deepthroat-windows-x64.zip`, `artifacts/deepthroat-windows-x64.exe`, and `artifacts/SHA256SUMS`. The ZIP contains `deepthroat.exe` and its required `LICENSE.txt` attribution. The executable also exposes `deepthroat license`. Publish all three files together under a versioned GitHub release in `variablepy/deepthroat-cli`.
+The packager writes `artifacts/deepthroat-windows-x64.zip`, `artifacts/deepthroat-windows-x64.exe`, and `artifacts/SHA256SUMS`. The ZIP contains `deepthroat.exe` its required `LICENSE.txt` attribution, and the shared Windows `integration.ps1` helper. The executable also exposes `deepthroat license`. Publish all three files together under a versioned GitHub release in `variablepy/deepthroat-cli`.
 
 ## Standalone Windows installation
 
@@ -37,6 +37,12 @@ The CLI bundled with the desktop app must update through the desktop installer, 
 
 Set `update` to `disable`, `notify`, or `auto` in the CLI's `deepthroat.json` configuration. The default is `notify`. `DEEPTHROAT_DISABLE_AUTOUPDATE=1` disables automatic checks.
 
-## Release readiness
+## Verified release
 
-The public release, desktop bundling, and full installation and live-upgrade tests are still being prepared. The updater implementation has local policy, metadata, and checksum checks; it has not yet been verified against a published DeepThroat release. The existence of a locally packaged archive does not establish that these distribution channels are live.
+[CLI v0.1.0](https://github.com/variablepy/deepthroat-cli/releases/tag/v0.1.0) is published. [The release workflow](https://github.com/variablepy/deepthroat-cli/actions/runs/40034084660) passed types, regression checks, compiled-executable smoke tests, and a fresh Windows installation from the public release, including PATH resolution and launch.
+
+Desktop bundling and live executable-replacement verification are being completed separately.
+
+## Existing installations
+
+The standalone CLI stays preferred when Desktop installs its optional bundled CLI. Each uses a separate directory. Desktop uninstall removes only its owned PATH entry and never removes the standalone binary or registration. Recognized legacy launchers that point to the retired Python entry.py are backed up and migrated; custom launchers are preserved.

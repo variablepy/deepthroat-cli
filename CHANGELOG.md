@@ -1,12 +1,15 @@
 # Changelog
 
-## 0.1.0 — In preparation
+## 0.1.1
 
-- DeepThroat website account sign-in and account model catalog.
-- DeepThroat-only inference with manual keys and custom endpoints disabled.
-- Build and Plan agents, project tools, MCP, language servers, and skills.
-- Standalone Windows executable and checksum-verified release downloads.
-- Desktop-bundled CLI installation with an isolated command directory.
-- DeepThroat branding, configuration paths, workspace packages, and themes.
+- Repair recognized legacy Python launchers with a backed-up, managed dispatcher.
+- Keep standalone CLI installations preferred when Desktop is installed or upgraded.
+- Shared user PATH registration, uninstall ownership and environment notifications.
+- Verify legacy PATH resolution and real executable updates in release checks.
 
-This release has not been published. Installation and live-upgrade verification remain release gates.
+## 0.1.0 - 2026-10-24
+
+- Website account sign-in and automatic model catalog.
+- DeepThroat-only inference, Build and Plan, tools, MCP, language servers and skills.
+- Standalone Windows executable and checksum-verified installation.
+- DeepThroat branding, configuration paths, packages and themes.
