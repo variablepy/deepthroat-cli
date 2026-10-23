@@ -27,6 +27,7 @@ if (process.env.DEEPTHROAT_SSH_ASKPASS_PORT) {
 
 const Handlers = Runtime.handlers(Commands, {
   $: () => import("./commands/handlers/default"),
+  license: () => import("./commands/handlers/license"),
   upgrade: () => import("./commands/handlers/upgrade"),
   uninstall: () => import("./commands/handlers/uninstall"),
   acp: () => import("./commands/handlers/acp"),

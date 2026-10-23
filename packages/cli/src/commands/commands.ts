@@ -57,6 +57,7 @@ const Root = Spec.make(typeof deepthroatcliname === "string" ? deepthroatcliname
     prompt: Flag.String("prompt").pipe(Flag.withDescription("Prompt to use"), Flag.optional),
   },
   commands: [
+    Spec.make("license", { description: "Show the software license and attribution" }),
     Spec.make("upgrade", {
       description: "Upgrade DeepThroat to the latest or a specific version",
       aliases: ["update"],

@@ -52,7 +52,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create $env:releaseversion artifacts/deepthroat-windows-x64.zip artifacts/deepthroat-windows-x64.exe artifacts/SHA256SUMS install.ps1 --verify-tag --title "DeepThroat CLI $env:releaseversion" --notes-file docs/release-notes.md
+          gh release create $env:releaseversion artifacts/deepthroat-windows-x64.zip artifacts/deepthroat-windows-x64.exe artifacts/SHA256SUMS artifacts/LICENSE.txt install.ps1 --verify-tag --title "DeepThroat CLI $env:releaseversion" --notes-file docs/release-notes.md
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
   installation:
     needs: windows

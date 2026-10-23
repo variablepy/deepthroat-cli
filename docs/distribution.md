@@ -12,7 +12,7 @@ bun run --cwd packages/cli script/build.ts --single --skip-install --skip-web-ui
 bun run packages/cli/script/package-release.ts
 ```
 
-The packager writes `artifacts/deepthroat-windows-x64.zip`, `artifacts/deepthroat-windows-x64.exe`, and `artifacts/SHA256SUMS`. The ZIP contains only `deepthroat.exe`. Publish all three files together under a versioned GitHub release in `variablepy/deepthroat-cli`.
+The packager writes `artifacts/deepthroat-windows-x64.zip`, `artifacts/deepthroat-windows-x64.exe`, and `artifacts/SHA256SUMS`. The ZIP contains `deepthroat.exe` and its required `LICENSE.txt` attribution. The executable also exposes `deepthroat license`. Publish all three files together under a versioned GitHub release in `variablepy/deepthroat-cli`.
 
 ## Standalone Windows installation
 
