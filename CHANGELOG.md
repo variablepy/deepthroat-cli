@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- Restore a full DeepThroat block ASCII wordmark with a compact terminal variant.
+
 ## 0.1.3
 
 - Create fresh nested Windows registration keys without replacing existing values.

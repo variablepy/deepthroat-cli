@@ -23,21 +23,21 @@ export function Logo() {
       if (char === "^") {
         return (
           <text fg={fg} bg={shadow} attributes={attrs} selectable={false}>
-            ▀
+            â–€
           </text>
         )
       }
       if (char === "~") {
         return (
           <text fg={shadow} attributes={attrs} selectable={false}>
-            ▀
+            â–€
           </text>
         )
       }
       if (char === ",") {
         return (
           <text fg={shadow} attributes={attrs} selectable={false}>
-            ▄
+            â–„
           </text>
         )
       }
@@ -51,13 +51,13 @@ export function Logo() {
 
   return (
     <box>
-      {dimensions().height < 12 ? null : dimensions().width < 22 ? (
-        <For each={go.right.slice(1)}>
+      {dimensions().height < 12 ? null : dimensions().width < 61 ? (
+        <For each={go.right}>
           {(line) => <box flexDirection="row">{renderLine(line, theme.text.base, true)}</box>}
         </For>
-      ) : dimensions().width < 44 ? (
+      ) : dimensions().width < 72 ? (
         <>
-          <For each={logo.left.slice(1)}>
+          <For each={logo.left}>
             {(line) => <box flexDirection="row">{renderLine(line, theme.text.muted, false)}</box>}
           </For>
           <For each={logo.right}>
