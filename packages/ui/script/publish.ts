@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { Script } from "@opencode/script"
+import { script } from "@deepthroat/script"
 import { $ } from "bun"
 import { rm } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -22,7 +22,7 @@ try {
   await $`bun run typecheck:tsc`
   await $`bun run test`
   await pack()
-  await $`npm publish ${tarball} --access public --tag ${Script.channel}`
+  await $`npm publish ${tarball} --access public --tag ${script.channel}`
 } finally {
   await rm(tarball, { force: true })
 }

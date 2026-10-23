@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package",
-  "name": "@opencode/script",
+  "name": "@deepthroat/script",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -16,5 +16,12 @@
   "exports": {
     ".": "./src/index.ts",
     "./highlights": "./src/highlights.ts"
+  },
+  "version": "0.1.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/variablepy/deepthroat-cli.git",
+    "directory": "packages/script"
   }
 }

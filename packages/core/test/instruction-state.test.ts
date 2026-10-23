@@ -1,25 +1,25 @@
 import { describe, expect } from "bun:test"
 import { and, asc, eq } from "drizzle-orm"
 import { Effect, Schema } from "effect"
-import { Database } from "@opencode/core/database/database"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Bus } from "@opencode/core/bus"
-import { Event } from "@opencode/schema/event"
-import { EventTable } from "@opencode/core/event/sql"
-import { Instructions } from "@opencode/core/instructions/index"
-import { Project } from "@opencode/core/project"
-import { ProjectTable } from "@opencode/core/project/sql"
-import { AbsolutePath } from "@opencode/core/schema"
-import { InstructionState } from "@opencode/core/session/instruction-state"
-import { SessionProjector } from "@opencode/core/session/projector"
-import { SessionSchema } from "@opencode/core/session/schema"
+import { Database } from "@deepthroat/core/database/database"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
+import { Bus } from "@deepthroat/core/bus"
+import { Event } from "@deepthroat/schema/event"
+import { EventTable } from "@deepthroat/core/event/sql"
+import { Instructions } from "@deepthroat/core/instructions/index"
+import { Project } from "@deepthroat/core/project"
+import { ProjectTable } from "@deepthroat/core/project/sql"
+import { AbsolutePath } from "@deepthroat/core/schema"
+import { InstructionState } from "@deepthroat/core/session/instruction-state"
+import { SessionProjector } from "@deepthroat/core/session/projector"
+import { SessionSchema } from "@deepthroat/core/session/schema"
 import {
   InstructionBlobTable,
   InstructionStateTable,
   SessionMessageTable,
   SessionTable,
-} from "@opencode/core/session/sql"
+} from "@deepthroat/core/session/sql"
 import { testEffect } from "./lib/effect"
 
 const it = testEffect(

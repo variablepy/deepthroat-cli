@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { Script } from "@opencode/script"
+import { script } from "@deepthroat/script"
 import { $ } from "bun"
 import { rm } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -39,7 +39,7 @@ try {
   )
   await rm(tarball, { force: true })
   await $`bun pm pack`
-  await $`npm publish ${tarball} --tag ${Script.channel} --access public`
+  await $`npm publish ${tarball} --tag ${script.channel} --access public`
 } finally {
   await Bun.write("package.json", original)
   await rm(tarball, { force: true })

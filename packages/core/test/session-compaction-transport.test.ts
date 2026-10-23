@@ -1,10 +1,10 @@
 import { expect } from "bun:test"
-import { LLM, LLMClient, LLMRequest, Message } from "@opencode/ai"
-import { OpenAI } from "@opencode/ai/providers"
-import { RequestExecutor, WebSocketTransport } from "@opencode/ai/route"
-import { SessionModelTransport } from "@opencode/core/session/model-transport"
-import { WebSocketConstructor } from "@opencode/core/effect/websocket-constructor"
-import { Session } from "@opencode/schema/session"
+import { LLM, LLMClient, LLMRequest, Message } from "@deepthroat/ai"
+import { responsesfixture } from "./lib/responses"
+import { RequestExecutor, WebSocketTransport } from "@deepthroat/ai/route"
+import { SessionModelTransport } from "@deepthroat/core/session/model-transport"
+import { WebSocketConstructor } from "@deepthroat/core/effect/websocket-constructor"
+import { Session } from "@deepthroat/schema/session"
 import { Effect, Latch, Layer, Schema } from "effect"
 import { FetchHttpClient } from "effect/http"
 import { Socket } from "effect/socket"
@@ -84,7 +84,7 @@ for (const recovery of ["reconnect", "http-fallback", "ambiguous-send"] as const
           const channels = yield* SessionModelTransport.Service
           const options = { webSocket: channels.bind(Session.ID.make(`ses_compaction_${recovery}`)) }
           const first = LLM.request({
-            model: OpenAI.configure({ apiKey: "fixture", baseURL: server.url.toString() }).responses("fixture"),
+            model: responsesfixture.configure({ apiKey: "fixture", baseURL: server.url.toString() }).responses("fixture"),
             prompt: "first",
             providerOptions: { contextManagement: [{ type: "compaction", compactThreshold: 100000 }] },
           })

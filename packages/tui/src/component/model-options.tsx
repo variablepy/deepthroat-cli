@@ -1,4 +1,4 @@
-import type { ModelInfo } from "@opencode/client"
+import type { ModelInfo } from "@deepthroat/client"
 import { For, Show } from "solid-js"
 import { useTheme } from "../context/theme"
 import { modelPreferenceKey } from "../model-preference"
@@ -23,8 +23,8 @@ export function sortModelOptions<
 >(options: T[], grouped = true) {
   return options.toSorted((a, b) => {
     const provider = grouped
-      ? Number(b.providerID === "opencode-go") - Number(a.providerID === "opencode-go") ||
-        Number(b.providerID === "opencode") - Number(a.providerID === "opencode")
+      ? Number(b.providerID === "deepthroat-go") - Number(a.providerID === "deepthroat-go") ||
+        Number(b.providerID === "deepthroat") - Number(a.providerID === "deepthroat")
       : 0
     if (provider !== 0) return provider
 

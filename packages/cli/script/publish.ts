@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { $ } from "bun"
 import pkg from "../package.json"
-import { Script } from "@opencode/script"
+import { script } from "@deepthroat/script"
 import { fileURLToPath } from "url"
 import { existsSync } from "fs"
 import { chmod, rm, utimes } from "node:fs/promises"
@@ -9,7 +9,7 @@ import path from "node:path"
 import { UpdateArtifact } from "../../../script/update-artifact"
 
 const dir = fileURLToPath(new URL("..", import.meta.url))
-const root = path.resolve(process.env.OPENCODE_CLI_DIST ?? path.join(dir, "dist"))
+const root = path.resolve(process.env.DEEPTHROAT_CLI_DIST ?? path.join(dir, "dist"))
 process.chdir(dir)
 const dryRun = process.argv.includes("--dry-run")
 
@@ -23,7 +23,7 @@ async function publish(dir: string, name: string, version: string) {
   if (exists) console.log(`already published ${name}@${version}`)
   // Keep local tarballs available to downstream publishers when retrying a release.
   await $`bun pm pack`.cwd(dir)
-  if (!exists && !dryRun) await $`npm publish *.tgz --access public --tag ${Script.channel}`.cwd(dir)
+  if (!exists && !dryRun) await $`npm publish *.tgz --access public --tag ${script.channel}`.cwd(dir)
 }
 
 async function publishDistribution(input: {
@@ -46,7 +46,7 @@ async function publishDistribution(input: {
   if (versions.size > 1) throw new Error(`Binary package versions do not match for ${input.name}`)
   const version = versions.values().next().value
   if (!version) throw new Error(`No binary packages found for ${input.name}`)
-  if (version !== Script.version) throw new Error(`Expected ${Script.version}, got ${version} for ${input.name}`)
+  if (version !== script.version) throw new Error(`Expected ${script.version}, got ${version} for ${input.name}`)
 
   await $`mkdir -p ${input.root}/${input.name}/bin`
   await $`cp ./script/postinstall.mjs ${input.root}/${input.name}/postinstall.mjs`
@@ -68,11 +68,11 @@ async function publishDistribution(input: {
           [input.command]: `./bin/${input.command}.exe`,
           ...(input.legacyCommand ? { [input.legacyCommand]: `./bin/${input.command}.exe` } : {}),
         },
-        ...(input.command !== input.binary ? { opencodeSourceBinary: input.binary } : {}),
+        ...(input.command !== input.binary ? { deepthroatSourceBinary: input.binary } : {}),
         scripts: { postinstall: "node ./postinstall.mjs" },
         version,
         license: pkg.license,
-        repository: { type: "git", url: "git+https://github.com/anomalyco/opencode.git" },
+        repository: { type: "git", url: "git+https://github.com/variablepy/deepthroat-cli.git" },
         os: ["darwin", "linux", "win32"],
         cpu: ["arm64", "x64"],
         optionalDependencies: binaries,
@@ -84,7 +84,7 @@ async function publishDistribution(input: {
 
   await Promise.all(
     Object.entries(binaries).map(([name, version]) =>
-      publish(`${input.root}/${name.replace("@opencode/", "")}`, name, version),
+      publish(`${input.root}/${name.replace("@deepthroat/", "")}`, name, version),
     ),
   )
   await publish(`${input.root}/${input.name}`, input.name, version)
@@ -93,7 +93,7 @@ async function publishDistribution(input: {
     files: await Promise.all(
       Object.keys(binaries).map((name) =>
         archive(
-          path.join(input.root, name.replace("@opencode/", ""), "bin"),
+          path.join(input.root, name.replace("@deepthroat/", ""), "bin"),
           name.slice(input.packagePrefix.length),
           input.binary,
           input.root,
@@ -103,9 +103,9 @@ async function publishDistribution(input: {
     dryRun,
   })
   const artifact = {
-    channel: Script.channel,
+    channel: script.channel,
     name: input.artifact,
-    distribution: "opencode",
+    distribution: "deepthroat",
     version,
     metadata: { files },
   }
@@ -114,7 +114,7 @@ async function publishDistribution(input: {
     return
   }
   await UpdateArtifact.publish({
-    channel: Script.channel,
+    channel: script.channel,
     name: input.artifact,
     distribution: "npm",
     version,
@@ -126,32 +126,32 @@ async function publishDistribution(input: {
 await publishDistribution({
   root,
   name: pkg.name,
-  command: "opencode",
-  legacyCommand: "opencode2",
-  binary: "opencode",
-  packagePrefix: "@opencode/cli-",
+  command: "deepthroat",
+  legacyCommand: "deepthroat2",
+  binary: "deepthroat",
+  packagePrefix: "@deepthroat/cli-",
   artifact: "cli",
 })
-if (Script.channel !== "latest" && existsSync(path.join(root, "node"))) {
+if (script.channel !== "latest" && existsSync(path.join(root, "node"))) {
   await publishDistribution({
     root: path.join(root, "node"),
-    name: "@opencode/cli-node",
-    command: "opencode2-node",
-    binary: "opencode2-node",
-    packagePrefix: "@opencode/cli-node-",
+    name: "@deepthroat/cli-node",
+    command: "deepthroat2-node",
+    binary: "deepthroat2-node",
+    packagePrefix: "@deepthroat/cli-node-",
     artifact: "cli-node",
   })
 }
 
-if (Script.channel === "latest" && Script.release && !dryRun) {
-  await $`docker buildx build --platform linux/amd64,linux/arm64 --tag ghcr.io/anomalyco/opencode:${Script.version} --push .`
+if (script.channel === "latest" && script.release && !dryRun) {
+  await $`docker buildx build --platform linux/amd64,linux/arm64 --tag ghcr.io/anomalyco/deepthroat:${script.version} --push .`
 }
 
-if ((Script.channel === "beta" || Script.channel === "latest") && Script.release) {
-  await $`bun ./script/publish-aur.ts ${dryRun ? ["--dry-run"] : []}`.env({ ...process.env, OPENCODE_CLI_DIST: root })
+if ((script.channel === "beta" || script.channel === "latest") && script.release) {
+  await $`bun ./script/publish-aur.ts ${dryRun ? ["--dry-run"] : []}`.env({ ...process.env, DEEPTHROAT_CLI_DIST: root })
   await $`bun ./script/publish-homebrew.ts ${dryRun ? ["--dry-run"] : []}`.env({
     ...process.env,
-    OPENCODE_CLI_DIST: root,
+    DEEPTHROAT_CLI_DIST: root,
   })
 }
 

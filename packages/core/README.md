@@ -1,3 +1,3 @@
-# @opencode/core
+# @deepthroat/core
 
-Core runtime services for OpenCode.
+Core runtime services for DeepThroat.

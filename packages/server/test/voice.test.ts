@@ -1,8 +1,8 @@
 import fs from "node:fs/promises"
 import path from "node:path"
 import { expect } from "bun:test"
-import { Voice } from "@opencode/core/voice"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+import { Voice } from "@deepthroat/core/voice"
+import { makeLocationNode } from "@deepthroat/util/effect/app-node"
 import { Effect, Layer } from "effect"
 import { tmpdir } from "../../core/test/fixture/tmpdir"
 import { it } from "../../core/test/lib/effect"
@@ -21,7 +21,7 @@ const voice = makeLocationNode({
               provider: "openai",
               transports: ["webrtc"],
               available: true,
-              integration: "opencode",
+              integration: "deepthroat",
               workspace: "Anomaly",
             },
             { model: "gpt-realtime-2.1", provider: "openai", transports: ["webrtc", "websocket"], available: true },
@@ -60,7 +60,7 @@ const voice = makeLocationNode({
 
 it.live("routes experimental voice models and session endpoints", () =>
   Effect.gen(function* () {
-    const tmp = yield* Effect.acquireDisposable(Effect.promise(() => tmpdir("opencode-voice-endpoint-")))
+    const tmp = yield* Effect.acquireDisposable(Effect.promise(() => tmpdir("deepthroat-voice-endpoint-")))
     const global = path.join(tmp.path, "global")
     yield* Effect.promise(() => fs.mkdir(global))
     const handler = yield* ServerFetch.make(
@@ -73,7 +73,7 @@ it.live("routes experimental voice models and session endpoints", () =>
       { overrides: [Voice.node.replace(voice)] },
     )
     const modelsRes = yield* Effect.promise(() =>
-      handler(new Request("http://opencode.local/api/experimental/voice/models")),
+      handler(new Request("http://deepthroat.local/api/experimental/voice/models")),
     )
     expect(modelsRes.status).toBe(200)
     expect(yield* Effect.promise(() => modelsRes.json())).toEqual({
@@ -84,7 +84,7 @@ it.live("routes experimental voice models and session endpoints", () =>
             provider: "openai",
             transports: ["webrtc"],
             available: true,
-            integration: "opencode",
+            integration: "deepthroat",
             workspace: "Anomaly",
           },
           { model: "gpt-realtime-2.1", provider: "openai", transports: ["webrtc", "websocket"], available: true },
@@ -98,7 +98,7 @@ it.live("routes experimental voice models and session endpoints", () =>
     const post = (body: unknown) =>
       Effect.promise(() =>
         handler(
-          new Request("http://opencode.local/api/experimental/voice/session", {
+          new Request("http://deepthroat.local/api/experimental/voice/session", {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(body),
@@ -135,7 +135,7 @@ it.live("routes experimental voice models and session endpoints", () =>
     const instruct = (id: string) =>
       Effect.promise(() =>
         handler(
-          new Request(`http://opencode.local/api/experimental/voice/session/${id}/instructions`, {
+          new Request(`http://deepthroat.local/api/experimental/voice/session/${id}/instructions`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ instructions: "The screen shows ses_1." }),

@@ -5,7 +5,7 @@ import color from "picocolors"
 export type IntegrationChoice = {
   value: string
   label: string
-  category: "MCP" | "Popular" | "Services"
+  category: "Account" | "MCP" | "Popular" | "Services"
   connected: boolean
   hint?: string
 }

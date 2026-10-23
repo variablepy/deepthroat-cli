@@ -1,21 +1,21 @@
 import path from "path"
 import { describe, expect } from "bun:test"
-import { Money } from "@opencode/schema/money"
+import { Money } from "@deepthroat/schema/money"
 import { Context, Effect, Exit, Layer, Scope } from "effect"
 import { TestClock } from "effect/testing"
-import { Integration } from "@opencode/core/integration"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Bus } from "@opencode/core/bus"
-import { Location } from "@opencode/core/location"
-import { Model } from "@opencode/core/model"
-import { ModelsDev } from "@opencode/core/models-dev"
-import { ModelsDevPlugin } from "@opencode/core/plugin/models-dev"
-import { Plugin } from "@opencode/core/plugin"
-import { PluginHost } from "@opencode/core/plugin/host"
-import { ProviderPlugins } from "@opencode/core/plugin/provider"
-import { Provider } from "@opencode/core/provider"
-import { AbsolutePath } from "@opencode/core/schema"
+import { Integration } from "@deepthroat/core/integration"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
+import { Bus } from "@deepthroat/core/bus"
+import { Location } from "@deepthroat/core/location"
+import { Model } from "@deepthroat/core/model"
+import { ModelsDev } from "@deepthroat/core/models-dev"
+import { ModelsDevPlugin } from "@deepthroat/core/plugin/models-dev"
+import { Plugin } from "@deepthroat/core/plugin"
+import { PluginHost } from "@deepthroat/core/plugin/host"
+import { providerplugins } from "@deepthroat/core/plugin/provider"
+import { Provider } from "@deepthroat/core/provider"
+import { AbsolutePath } from "@deepthroat/core/schema"
 import { withEnv } from "../fixture/env"
 import { location } from "../fixture/location"
 import { testEffect } from "../lib/effect"
@@ -75,7 +75,7 @@ const richSnapshot = (name = "Acme") => {
         id: providerID,
         name,
         activation: "auto",
-        package: "@opencode/ai/providers/openai-compatible",
+        package: "@deepthroat/ai/providers/openai-compatible",
         settings: { baseURL: "https://api.acme.test/v1", thinking: { type: "adaptive", display: "summarized" } },
         headers: { "x-acme": "provider" },
         body: { service_tier: "default", tags: ["stable"] },
@@ -336,7 +336,7 @@ describe("ModelsDevPlugin", () => {
                 id: providerID,
                 name: "Acme",
                 activation: "auto",
-                package: "@opencode/ai/providers/openai-compatible",
+                package: "@deepthroat/ai/providers/openai-compatible",
               },
               environment: [],
               models: [
@@ -393,7 +393,7 @@ describe("ModelsDevPlugin", () => {
             id: providerID,
             name: "Acme",
             activation: "auto",
-            package: "@opencode/ai/providers/openai-compatible",
+            package: "@deepthroat/ai/providers/openai-compatible",
             settings: { baseURL: "https://api.acme.test/v1" },
             headers: { "x-acme": "provider" },
           },
@@ -472,7 +472,7 @@ describe("ModelsDevPlugin", () => {
                 id: providerID,
                 name: "Acme",
                 activation: "auto",
-                package: "@opencode/ai/providers/openai-compatible",
+                package: "@deepthroat/ai/providers/openai-compatible",
                 settings: { baseURL: "https://api.acme.test/v1" },
               },
               environment: [],
@@ -524,7 +524,7 @@ describe("ModelsDevPlugin", () => {
                   providerID,
                   name: "GPT-5.4 Fast",
                   family: Model.Family.make("gpt"),
-                  package: "@opencode/ai/providers/openai-compatible",
+                  package: "@deepthroat/ai/providers/openai-compatible",
                   settings: { baseURL: "https://api.acme.test/v1" },
                   headers: { "x-mode": "fast" },
                   body: { service_tier: "priority" },
@@ -587,7 +587,7 @@ describe("ModelsDevPlugin", () => {
         modelID: "gpt-5.4",
         providerID: "acme",
         name: "GPT-5.4 Fast",
-        package: "@opencode/ai/providers/openai-compatible",
+        package: "@deepthroat/ai/providers/openai-compatible",
         settings: { baseURL: "https://api.acme.test/v1" },
         headers: { "x-mode": "fast" },
         body: { service_tier: "priority" },
@@ -652,7 +652,7 @@ describe("ModelsDevPlugin", () => {
             id: providerID,
             name: "Acme",
             activation: "auto",
-            package: "@opencode/ai/providers/openai-compatible",
+            package: "@deepthroat/ai/providers/openai-compatible",
           },
           environment: [],
           models: [
@@ -763,7 +763,7 @@ describe("ModelsDevPlugin", () => {
                         id: providerID,
                         name: "Acme",
                         activation: "auto",
-                        package: "@opencode/ai/providers/openai-compatible",
+                        package: "@deepthroat/ai/providers/openai-compatible",
                         settings: { baseURL: "https://${ACME_HOST}/${UNDECLARED_HOST}/v1" },
                       },
                       environment: ["ACME_HOST", "ACME_MODEL_PATH", "ACME_API_KEY"],
@@ -815,7 +815,7 @@ describe("ModelsDevPlugin", () => {
           id: providerID,
           name: "Acme",
           activation: "auto",
-          package: "@opencode/ai/providers/openai-compatible",
+          package: "@deepthroat/ai/providers/openai-compatible",
         },
         environment: [],
         models: [
@@ -908,8 +908,8 @@ describe("ModelsDevPlugin", () => {
       expect(yield* integrations.get(Integration.ID.make("google-vertex"))).toBeDefined()
       expect(yield* integrations.get(Integration.ID.make("azure-cognitive-services"))).toBeUndefined()
       expect(yield* integrations.get(Integration.ID.make("google-vertex-anthropic"))).toBeUndefined()
-      expect(ProviderPlugins.map((plugin) => plugin.id)).not.toContain("opencode.provider.azure.cognitive.services")
-      expect(ProviderPlugins.map((plugin) => plugin.id)).not.toContain("opencode.provider.google.vertex.anthropic")
+      expect(providerplugins.map((plugin) => plugin.id)).not.toContain("deepthroat.provider.azure.cognitive.services")
+      expect(providerplugins.map((plugin) => plugin.id)).not.toContain("deepthroat.provider.google.vertex.anthropic")
     }),
   )
 
@@ -934,7 +934,7 @@ describe("ModelsDevPlugin", () => {
                     id: Provider.ID.make("cloudflare-workers-ai"),
                     name: "Cloudflare Workers AI",
                     activation: "auto",
-                    package: "@opencode/ai/providers/cloudflare-workers-ai",
+                    package: "@deepthroat/ai/providers/cloudflare-workers-ai",
                   },
                   environment: ["CLOUDFLARE_ACCOUNT_ID", "CLOUDFLARE_API_KEY"],
                   models: [],
@@ -944,7 +944,7 @@ describe("ModelsDevPlugin", () => {
                     id: Provider.ID.make("google-vertex"),
                     name: "Google Vertex",
                     activation: "auto",
-                    package: "@opencode/ai/providers/google-vertex",
+                    package: "@deepthroat/ai/providers/google-vertex",
                   },
                   environment: ["GOOGLE_VERTEX_PROJECT", "GOOGLE_VERTEX_LOCATION", "GOOGLE_APPLICATION_CREDENTIALS"],
                   models: [],
@@ -1068,7 +1068,7 @@ describe("ModelsDevPlugin", () => {
         })),
       )
 
-      const minimax = yield* modelState.get(Provider.ID.make("opencode-go"), Model.ID.make("minimax-m3"))
+      const minimax = yield* modelState.get(Provider.ID.make("deepthroat-go"), Model.ID.make("minimax-m3"))
       expect(minimax?.variants).toEqual([
         { id: Model.VariantID.make("none"), settings: { thinking: { type: "disabled" } } },
         {

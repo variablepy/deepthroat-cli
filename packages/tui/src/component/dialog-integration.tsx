@@ -11,8 +11,8 @@ import type {
   FormFields,
   FormValue,
   LocationRef,
-} from "@opencode/client"
-import { openUrl } from "@opencode/util/open"
+} from "@deepthroat/client"
+import { openUrl } from "@deepthroat/util/open"
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useNewDesigns } from "../config"
@@ -46,15 +46,6 @@ import {
   type FormAnswerField,
 } from "../util/form"
 
-const INTEGRATION_PRIORITY: Record<string, number> = {
-  "opencode-go": 0,
-  opencode: 1,
-  openai: 2,
-  "github-copilot": 3,
-  anthropic: 4,
-  google: 5,
-}
-
 type ConnectMethod = Exclude<IntegrationInfo["methods"][number], { type: "env" }>
 type IntegrationAttempt = IntegrationOauthConnectOutput["data"]
 type CommandAttempt = IntegrationCommandConnectOutput["data"]
@@ -66,20 +57,14 @@ const SUBMIT = Symbol("submit")
 // Device-flow codes such as "R283-GOUEO"; when present they are copied instead of the URL.
 const OAUTH_CODE = /[A-Z0-9]{4}-[A-Z0-9]{4,5}/
 
-export function integrationOptions(list: IntegrationInfo[]) {
-  return list.toSorted(
-    (a, b) =>
-      Number(b.metadata?.source === "mcp") - Number(a.metadata?.source === "mcp") ||
-      (INTEGRATION_PRIORITY[a.id] ?? 99) - (INTEGRATION_PRIORITY[b.id] ?? 99) ||
-      a.name.localeCompare(b.name) ||
-      a.id.localeCompare(b.id),
-  )
+export function integrationoptions(list: IntegrationInfo[]) {
+  return list.filter((integration) => integration.id === "deepthroat" || integration.metadata?.source === "mcp").toSorted((a, b) => Number(b.id === "deepthroat") - Number(a.id === "deepthroat") || a.name.localeCompare(b.name) || a.id.localeCompare(b.id))
 }
 
-export function connectMethods(integration: IntegrationInfo): ConnectMethod[] {
-  return integration.methods
-    .filter((method): method is ConnectMethod => method.type !== "env")
-    .toSorted((a, b) => Number(a.type === "key") - Number(b.type === "key"))
+export function connectmethods(integration: IntegrationInfo): ConnectMethod[] {
+  if (integration.id === "deepthroat") return integration.methods.filter((method): method is Extract<ConnectMethod, { type: "oauth" }> => method.type === "oauth" && method.id === "deepthroat-website")
+  if (integration.metadata?.source !== "mcp") return []
+  return integration.methods.filter((method): method is ConnectMethod => method.type !== "env").toSorted((a, b) => Number(a.type === "key") - Number(b.type === "key"))
 }
 
 export function credentialConnections(integration: IntegrationInfo) {
@@ -106,7 +91,7 @@ export function DialogIntegration(
   const theme = useTheme().surface("dialog")
   const location = currentLocation.ref ?? data.location.default()
   const integrations = createMemo(() =>
-    integrationOptions(data.location.integration.list(location) ?? []).filter(
+    integrationoptions(data.location.integration.list(location) ?? []).filter(
       (integration) => props.integrationID === undefined || integration.id === props.integrationID,
     ),
   )
@@ -115,7 +100,7 @@ export function DialogIntegration(
     if (!props.autoConnect) return
     const integration = integrations()[0]
     if (!integration) return
-    const methods = connectMethods(integration)
+    const methods = connectmethods(integration)
     if (credentialConnections(integration).length) {
       manageConnections(integration, methods, location, dialog, props.onConnected)
       return
@@ -125,11 +110,9 @@ export function DialogIntegration(
 
   const options = createMemo(() => {
     return integrations().map((integration) => {
-      const methods = connectMethods(integration)
+      const methods = connectmethods(integration)
       const credentials = credentialConnections(integration)
-      let category = "Services"
-      if (integration.id in INTEGRATION_PRIORITY) category = "Popular"
-      if (integration.metadata?.source === "mcp") category = "MCP"
+      const category = integration.id === "deepthroat" ? "Account" : "MCP"
       const status = integration.connections[0]?.status
       return {
         title: integration.name,

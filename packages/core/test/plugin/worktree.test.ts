@@ -1,9 +1,9 @@
 import { expect } from "bun:test"
 import { Cause, Deferred, Effect, Exit, Fiber } from "effect"
-import { Plugin } from "@opencode/plugin"
-import type { WorktreeDefinition } from "@opencode/plugin/effect/worktree"
-import { PluginPromise } from "@opencode/core/plugin/promise"
-import { State } from "@opencode/core/state"
+import { Plugin } from "@deepthroat/plugin"
+import type { WorktreeDefinition } from "@deepthroat/plugin/effect/worktree"
+import { PluginPromise } from "@deepthroat/core/plugin/promise"
+import { State } from "@deepthroat/core/state"
 import { it } from "../lib/effect"
 import { host } from "./host"
 

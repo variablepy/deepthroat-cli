@@ -1,5 +1,5 @@
-import type { ReferenceGitSource, ReferenceLocalSource } from "@opencode/client"
-import type { ReferenceApi } from "@opencode/client/effect/api"
+import type { ReferenceGitSource, ReferenceLocalSource } from "@deepthroat/client"
+import type { ReferenceApi } from "@deepthroat/client/effect/api"
 import type { Effect } from "effect"
 import type { Transform } from "./registration.js"
 

@@ -1,5 +1,5 @@
-import { ClientError, OpenCode } from "@opencode/client"
-import { Service } from "@opencode/client/effect/service"
+import { ClientError, deepthroat } from "@deepthroat/client"
+import { Service } from "@deepthroat/client/effect/service"
 import { Effect, Option, Predicate } from "effect"
 import { EOL } from "node:os"
 import path from "node:path"
@@ -13,7 +13,7 @@ const handler = Effect.fn("cli.debug.heap-dump")(function* (
   input: Runtime.Input<(typeof Commands.commands.debug.commands)["heap-dump"]>,
 ) {
   const endpoint = yield* running(Option.getOrUndefined(input.server))
-  const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+  const client = deepthroat.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
   // The server writes the file, so a relative directory resolves against this shell. An absolute one passes through
   // untouched, which keeps a POSIX path for a remote server intact on Windows.
   const directory = Option.match(input.directory, {

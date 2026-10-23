@@ -1,13 +1,13 @@
 import { Cause, Context, Duration, Effect, Layer, Option, Schedule, Schema, Semaphore } from "effect"
 import { HttpClient, HttpClientRequest } from "effect/http"
-import { ModelsDev } from "@opencode/schema/models-dev"
-import { Money } from "@opencode/schema/money"
+import { ModelsDev } from "@deepthroat/schema/models-dev"
+import { Money } from "@deepthroat/schema/money"
 import { App } from "./app.js"
-import { Hash } from "@opencode/util/hash"
-import { FSUtil } from "@opencode/util/fs-util"
+import { Hash } from "@deepthroat/util/hash"
+import { FSUtil } from "@deepthroat/util/fs-util"
 import { Bus } from "./bus.js"
-import { makeGlobalNode } from "@opencode/util/effect/app-node"
-import { httpClient } from "@opencode/util/effect/app-node-platform"
+import { makeGlobalNode } from "@deepthroat/util/effect/app-node"
+import { httpClient } from "@deepthroat/util/effect/app-node-platform"
 import { Model } from "./model.js"
 import { AISDKNative } from "./aisdk-native.js"
 import { Provider } from "./provider.js"
@@ -103,7 +103,7 @@ function normalize(input: Record<string, SourceProvider>): readonly Snapshot[] {
       name: item.name,
       activation: "auto",
       package: packageName,
-      ...(item.api && packageName !== "@opencode/ai/providers/cloudflare-workers-ai"
+      ...(item.api && packageName !== "@deepthroat/ai/providers/cloudflare-workers-ai"
         ? { settings: { baseURL: item.api } }
         : {}),
     } satisfies Provider.Info
@@ -218,7 +218,7 @@ function modelInfo(
   // Per model, so it never merges into a model that overrides to a different package.
   const settings = {
     ...(model.provider?.api ? { baseURL: model.provider.api } : {}),
-    ...(resolved === "@opencode/ai/providers/openai-compatible" ? { provider: providerID } : {}),
+    ...(resolved === "@deepthroat/ai/providers/openai-compatible" ? { provider: providerID } : {}),
   }
   return {
     id,
@@ -250,7 +250,7 @@ function modelInfo(
   }
 }
 
-export { Event } from "@opencode/schema/models-dev"
+export { Event } from "@deepthroat/schema/models-dev"
 
 export interface Interface {
   readonly get: () => Effect.Effect<readonly Snapshot[]>
@@ -265,7 +265,7 @@ export const Options = Schema.Struct({
 })
 export type Options = typeof Options.Type
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/ModelsDev") {}
+export class Service extends Context.Service<Service, Interface>()("@deepthroat/ModelsDev") {}
 
 const CatalogJson = Schema.fromJsonString(Schema.Record(Schema.String, Schema.Unknown))
 const decodeCatalog = (text: string) =>
@@ -277,9 +277,9 @@ const Cache = Schema.Struct({
   digest: Schema.optional(Schema.String),
   body: CatalogJson,
 })
-const defaultSource = "https://models.opencode.ai"
+const defaultSource = "https://models.deepthroat.ai"
 
-// Bundled snapshot of https://models.opencode.ai/api.json, committed at
+// Bundled snapshot of https://models.dev/api.json, committed at
 // packages/core/src/models-dev/snapshot.txt and refreshed via
 // `bun run script/update-models-snapshot.ts`. Decoded and normalized once per
 // isolate: the snapshot is a multi-MB module-level constant and one isolate can

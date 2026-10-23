@@ -1,16 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode/util",
-  "version": "2.1.3",
+  "name": "@deepthroat/util",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anomalyco/opencode.git",
+    "url": "git+https://github.com/variablepy/deepthroat-cli.git",
     "directory": "packages/util"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "dist"
@@ -71,5 +68,6 @@
     "@types/npmcli__arborist": "6.3.3",
     "@types/pacote": "11.1.8",
     "@typescript/native": "catalog:"
-  }
+  },
+  "private": true
 }

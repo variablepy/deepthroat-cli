@@ -1,6 +1,6 @@
-import { Location } from "@opencode/core/location"
-import { Project } from "@opencode/core/project"
-import { AbsolutePath } from "@opencode/core/schema"
+import { Location } from "@deepthroat/core/location"
+import { Project } from "@deepthroat/core/project"
+import { AbsolutePath } from "@deepthroat/core/schema"
 import { Effect, Layer } from "effect"
 import { tmpdir } from "./tmpdir"
 

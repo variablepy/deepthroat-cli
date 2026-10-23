@@ -35,13 +35,13 @@ import type {
   ShellInfo,
   SkillInfo,
   VcsInfo,
-  OpenCodeEvent,
-  OpenCodeClient,
+  deepthroatevent,
+  DeepThroatClient,
   WebSearchProvider,
 } from "../promise"
-import { Worktree } from "@opencode/schema/worktree"
-import { SessionID } from "@opencode/schema/session-id"
-import { SessionMessage } from "@opencode/schema/session-message"
+import { Worktree } from "@deepthroat/schema/worktree"
+import { SessionID } from "@deepthroat/schema/session-id"
+import { SessionMessage } from "@deepthroat/schema/session-message"
 import {
   isFormAlreadySettledError,
   isFormNotFoundError,
@@ -49,7 +49,7 @@ import {
   type SessionPromptInput,
 } from "../promise"
 import { createStore, produce, reconcile } from "solid-js/store"
-import type { SessionInbox } from "@opencode/schema/session-inbox"
+import type { SessionInbox } from "@deepthroat/schema/session-inbox"
 import { batch, createEffect, createMemo, createSignal, onCleanup } from "solid-js"
 
 export type DataSessionStatus = "idle" | "running"
@@ -59,19 +59,19 @@ export type DataSessionStatus = "idle" | "running"
  * execution that ended without delivering it, and `queued` waits for every steer to drain.
  */
 export type DataPendingStatus = "starting" | "steering" | "stranded" | "queued"
-type OpenCodeEventMap = { [Type in OpenCodeEvent["type"]]: Extract<OpenCodeEvent, { type: Type }> }
+type DeepThroatEventMap = { [Type in deepthroatevent["type"]]: Extract<deepthroatevent, { type: Type }> }
 
 export type CreateDataInput = {
-  readonly api: () => OpenCodeClient
+  readonly api: () => DeepThroatClient
   readonly directory: string
   /** Raw-message window used for an initial transcript read. Older pages retain their normal size. */
   readonly initialMessageLimit?: () => number
   readonly event: {
-    readonly on: <Type extends OpenCodeEvent["type"]>(
+    readonly on: <Type extends deepthroatevent["type"]>(
       type: Type,
-      handler: (event: OpenCodeEventMap[Type]) => void,
+      handler: (event: DeepThroatEventMap[Type]) => void,
     ) => () => void
-    readonly listen: (handler: (event: { name: OpenCodeEvent["type"]; details: OpenCodeEvent }) => void) => () => void
+    readonly listen: (handler: (event: { name: deepthroatevent["type"]; details: deepthroatevent }) => void) => () => void
   }
   readonly connection?: {
     readonly status: () => "connected" | "connecting" | "reconnecting"
@@ -165,7 +165,7 @@ function formRequestOptions(sessionID: string, ref?: LocationRef) {
   if (sessionID !== "global" || !ref) return undefined
   return {
     headers: {
-      "x-opencode-directory": encodeURIComponent(ref.directory),
+      "x-deepthroat-directory": encodeURIComponent(ref.directory),
     },
   }
 }
@@ -629,7 +629,7 @@ export function createData(config: CreateDataInput) {
     )
   }
 
-  function handleEvent(event: OpenCodeEvent) {
+  function handleEvent(event: deepthroatevent) {
     switch (event.type) {
       case "server.connected": {
         const updates = new Map<string, DataSessionStatus | undefined>()

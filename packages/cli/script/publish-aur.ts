@@ -1,30 +1,30 @@
 #!/usr/bin/env bun
-import { Script } from "@opencode/script"
+import { script } from "@deepthroat/script"
 import { $ } from "bun"
 import { mkdir, rm } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { UpdateArtifact } from "../../../script/update-artifact"
 
-if (Script.channel !== "beta" && Script.channel !== "latest") {
+if (script.channel !== "beta" && script.channel !== "latest") {
   throw new Error("AUR publishing requires the beta or latest channel")
 }
-const name = "opencode-beta"
-const command = "opencode"
+const name = "deepthroat-beta"
+const command = "deepthroat"
 const valid =
-  Script.channel === "beta"
-    ? /^\d+\.\d+\.\d+-beta[.-]\d+(?:\.\d+)?$/.test(Script.version)
-    : /^\d+\.\d+\.\d+$/.test(Script.version)
-if (!valid) throw new Error(`Expected a ${Script.channel} release version`)
+  script.channel === "beta"
+    ? /^\d+\.\d+\.\d+-beta[.-]\d+(?:\.\d+)?$/.test(script.version)
+    : /^\d+\.\d+\.\d+$/.test(script.version)
+if (!valid) throw new Error(`Expected a ${script.channel} release version`)
 
 const dir = fileURLToPath(new URL("..", import.meta.url))
-const root = path.resolve(process.env.OPENCODE_CLI_DIST ?? path.join(dir, "dist"))
+const root = path.resolve(process.env.DEEPTHROAT_CLI_DIST ?? path.join(dir, "dist"))
 const outdir = path.join(root, `aur-${name}`)
 const dryRun = process.argv.includes("--dry-run")
-const pkgver = Script.version.replaceAll("-", ".")
+const pkgver = script.version.replaceAll("-", ".")
 const license = Bun.file(path.join(dir, "..", "..", "LICENSE"))
 const shim = `#!/bin/sh
-exec "$(dirname "$0")/opencode" "$@"
+exec "$(dirname "$0")/deepthroat" "$@"
 `
 
 await rm(outdir, { recursive: true, force: true })
@@ -42,7 +42,7 @@ const sources = await Promise.all(
   ].map(async (item) => {
     const directory = path.join(root, `cli-${item.target}`)
     const pkg: { name: string; version: string } = await Bun.file(path.join(directory, "package.json")).json()
-    if (pkg.version !== Script.version) throw new Error(`Unexpected version for ${pkg.name}: ${pkg.version}`)
+    if (pkg.version !== script.version) throw new Error(`Unexpected version for ${pkg.name}: ${pkg.version}`)
     const archive = Bun.file(path.join(directory, `${pkg.name.replace("@", "").replace("/", "-")}-${pkg.version}.tgz`))
     const filename = `${name}-${pkgver}-${item.arch}.tgz`
     const url = `https://registry.npmjs.org/${pkg.name}/-/${pkg.name.split("/").at(-1)}-${pkg.version}.tgz`
@@ -52,7 +52,7 @@ const sources = await Promise.all(
 )
 
 await Bun.write(path.join(outdir, "LICENSE"), license)
-await Bun.write(path.join(outdir, "opencode2"), shim)
+await Bun.write(path.join(outdir, "deepthroat2"), shim)
 await Bun.write(
   path.join(outdir, "PKGBUILD"),
   [
@@ -60,22 +60,22 @@ await Bun.write(
     `pkgname=${name}`,
     `pkgver=${pkgver}`,
     "pkgrel=1",
-    "pkgdesc='OpenCode beta - the AI coding agent for the terminal'",
-    "url='https://github.com/anomalyco/opencode'",
+    "pkgdesc='DeepThroat beta - the AI coding agent for the terminal'",
+    "url='https://github.com/variablepy/deepthroat-cli'",
     "arch=('x86_64' 'aarch64')",
     "license=('MIT')",
     "depends=('glibc' 'gcc-libs' 'ripgrep')",
-    `provides=('${command}' 'opencode2')`,
-    `conflicts=('${command}' 'opencode2')`,
+    `provides=('${command}' 'deepthroat2')`,
+    `conflicts=('${command}' 'deepthroat2')`,
     // Stripping a compiled Bun executable can damage its embedded application.
     "options=('!strip' '!debug')",
-    "source=('LICENSE' 'opencode2')",
+    "source=('LICENSE' 'deepthroat2')",
     `sha256sums=('${new Bun.CryptoHasher("sha256").update(await license.arrayBuffer()).digest("hex")}' '${new Bun.CryptoHasher("sha256").update(shim).digest("hex")}')`,
     ...sources,
     "",
     "package() {",
-    `  install -Dm755 "$srcdir/package/bin/opencode" "$pkgdir/usr/bin/${command}"`,
-    '  install -Dm755 "$srcdir/opencode2" "$pkgdir/usr/bin/opencode2"',
+    `  install -Dm755 "$srcdir/package/bin/deepthroat" "$pkgdir/usr/bin/${command}"`,
+    '  install -Dm755 "$srcdir/deepthroat2" "$pkgdir/usr/bin/deepthroat2"',
     '  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"',
     "}",
     "",
@@ -85,15 +85,15 @@ await Bun.write(path.join(outdir, ".SRCINFO"), await $`makepkg --printsrcinfo`.c
 console.log(`Prepared ${name} ${pkgver} in ${outdir}`)
 if (dryRun) process.exit(0)
 
-await $`git add PKGBUILD .SRCINFO LICENSE opencode2`.cwd(outdir)
+await $`git add PKGBUILD .SRCINFO LICENSE deepthroat2`.cwd(outdir)
 if ((await $`git diff --cached --quiet`.cwd(outdir).nothrow()).exitCode !== 0) {
   await $`git commit -m ${`chore: update ${name} to ${pkgver}`}`.cwd(outdir)
   await $`git push origin master`.cwd(outdir)
 }
 await UpdateArtifact.publish({
-  channel: Script.channel,
+  channel: script.channel,
   name: "cli",
   distribution: "aur",
-  version: Script.version,
+  version: script.version,
   metadata: { package: name },
 })

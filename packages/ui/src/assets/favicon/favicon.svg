@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512"><svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="512" height="512" fill="#131010"></rect>
-<path d="M320 224V352H192V224H320Z" fill="#5A5858"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M384 416H128V96H384V416ZM320 160H192V352H320V160Z" fill="white"></path>
-</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
-@media (prefers-color-scheme: dark) { :root { filter: none; } }
-</style></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="25 22 78 86" fill="none"><path fill="#acacac" d="m33 41 31 14v28L33 69Z"/><path fill="#d3d3d3" d="m64 55 31-14v28L64 83Z"/><path fill="#f4f4f4" d="m64 27 31 14-31 14-31-14Z"/><path fill="#848484" d="m45 78 19 8v17L45 94Z"/><path fill="#a8a8a8" d="m64 86 19-8v16l-19 9Z"/><path fill="#cecece" d="m64 69 19 9-19 8-19-8Z"/></svg>

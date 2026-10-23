@@ -1,34 +1,34 @@
 import { expect, test } from "bun:test"
-import { GenerationOptions, LLMClient, LLMEvent, LanguageModel, ToolDefinition, type LLMRequest } from "@opencode/ai"
-import { OpenAIChat } from "@opencode/ai/protocols"
-import { Database } from "@opencode/core/database/database"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { llmClient } from "@opencode/core/effect/app-node-platform"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Bus } from "@opencode/core/bus"
-import { EventTable } from "@opencode/core/event/sql"
-import { SessionCompaction } from "@opencode/core/session/compaction"
-import type { SessionContext } from "@opencode/core/session/context"
-import { SessionEvent } from "@opencode/core/session/event"
-import { SessionMessage } from "@opencode/core/session/message"
-import { SessionModelRequest } from "@opencode/core/session/model-request"
-import { PluginHooks } from "@opencode/core/plugin/hooks"
-import { SessionProjector } from "@opencode/core/session/projector"
-import { SessionRunnerModel } from "@opencode/core/session/runner/model"
-import { SessionMessageTable, SessionTable } from "@opencode/core/session/sql"
-import { SessionStore } from "@opencode/core/session/store"
-import { Session } from "@opencode/core/session"
-import { Location } from "@opencode/core/location"
-import { Project } from "@opencode/core/project"
-import { ProjectTable } from "@opencode/core/project/sql"
-import { App } from "@opencode/core/app"
-import { Agent } from "@opencode/core/agent"
-import { Model } from "@opencode/core/model"
-import { Provider } from "@opencode/core/provider"
-import { AbsolutePath } from "@opencode/core/schema"
-import { Money } from "@opencode/schema/money"
-import { Skill } from "@opencode/schema/skill"
-import { Shell } from "@opencode/schema/shell"
+import { GenerationOptions, LLMClient, LLMEvent, LanguageModel, ToolDefinition, type LLMRequest } from "@deepthroat/ai"
+import { OpenAIChat } from "@deepthroat/ai/protocols"
+import { Database } from "@deepthroat/core/database/database"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { llmClient } from "@deepthroat/core/effect/app-node-platform"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
+import { Bus } from "@deepthroat/core/bus"
+import { EventTable } from "@deepthroat/core/event/sql"
+import { SessionCompaction } from "@deepthroat/core/session/compaction"
+import type { SessionContext } from "@deepthroat/core/session/context"
+import { SessionEvent } from "@deepthroat/core/session/event"
+import { SessionMessage } from "@deepthroat/core/session/message"
+import { SessionModelRequest } from "@deepthroat/core/session/model-request"
+import { PluginHooks } from "@deepthroat/core/plugin/hooks"
+import { SessionProjector } from "@deepthroat/core/session/projector"
+import { SessionRunnerModel } from "@deepthroat/core/session/runner/model"
+import { SessionMessageTable, SessionTable } from "@deepthroat/core/session/sql"
+import { SessionStore } from "@deepthroat/core/session/store"
+import { Session } from "@deepthroat/core/session"
+import { Location } from "@deepthroat/core/location"
+import { Project } from "@deepthroat/core/project"
+import { ProjectTable } from "@deepthroat/core/project/sql"
+import { App } from "@deepthroat/core/app"
+import { Agent } from "@deepthroat/core/agent"
+import { Model } from "@deepthroat/core/model"
+import { Provider } from "@deepthroat/core/provider"
+import { AbsolutePath } from "@deepthroat/core/schema"
+import { Money } from "@deepthroat/schema/money"
+import { Skill } from "@deepthroat/schema/skill"
+import { Shell } from "@deepthroat/schema/shell"
 import { DateTime, Deferred, Effect, Fiber, Layer, Schema, Stream } from "effect"
 import { asc, eq } from "drizzle-orm"
 import { testEffect } from "./lib/effect"
@@ -589,15 +589,15 @@ it.effect("manual compaction summarizes short context instead of no-op", () =>
     expect(requests).toHaveLength(1)
     expect(requests[0]?.promptCacheKey).toBe(parentID)
     expect(requests[0]?.http?.headers).toEqual({
-      "x-opencode-session-id": session.id,
-      "x-opencode-parent-session-id": parentID,
+      "x-deepthroat-session-id": session.id,
+      "x-deepthroat-parent-session-id": parentID,
       "x-session-affinity": parentID,
       "X-Session-Id": parentID,
       "x-parent-session-id": parentID,
       "User-Agent": App.useragent(App.make()),
-      "x-opencode-project": Project.ID.global,
-      "x-opencode-session": parentID,
-      "x-opencode-client": "opencode",
+      "x-deepthroat-project": Project.ID.global,
+      "x-deepthroat-session": parentID,
+      "x-deepthroat-client": "deepthroat",
     })
     expect(requests[0]?.generation).toEqual(GenerationOptions.make({ maxTokens: 30_000 }))
     expect(JSON.stringify(requests[0]?.messages)).toContain("Manual compaction should include this short conversation.")

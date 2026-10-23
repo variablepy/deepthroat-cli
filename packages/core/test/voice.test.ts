@@ -1,8 +1,8 @@
 import { expect } from "bun:test"
-import { RequestExecutor } from "@opencode/ai/route"
-import { Credential } from "@opencode/core/credential"
-import { Integration } from "@opencode/core/integration"
-import { Voice } from "@opencode/core/voice"
+import { RequestExecutor } from "@deepthroat/ai/route"
+import { Credential } from "@deepthroat/core/credential"
+import { Integration } from "@deepthroat/core/integration"
+import { Voice } from "@deepthroat/core/voice"
 import { Effect, Layer } from "effect"
 import { HttpClient, type HttpClientRequest, HttpClientResponse } from "effect/http"
 import { TestClock } from "effect/testing"
@@ -213,7 +213,7 @@ const withStoredKey = (requests: string[]) =>
   )
 
 const hostedLive = (instructed: Voice.InstructInput[]): Voice.Host => ({
-  integration: "opencode",
+  integration: "deepthroat",
   models: ["gpt-live-1"],
   workspace: "Anomaly",
   session: (input) =>
@@ -245,7 +245,7 @@ it.effect("starts a host's models and relays their instructions on it, even besi
       provider: "openai",
       transports: ["webrtc"],
       available: true,
-      integration: "opencode",
+      integration: "deepthroat",
       workspace: "Anomaly",
     })
     yield* voice.instruct({ id: "sess_hosted", instructions: "The screen shows ses_1." })

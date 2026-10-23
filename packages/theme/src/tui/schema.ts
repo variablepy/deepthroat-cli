@@ -41,7 +41,7 @@ const HueColorValue = Schema.Union([
   Schema.String.check(Schema.isPattern(/^\$hue\..+\.(?:100|200|300|400|500|600|700|800|900)$/)),
 ])
 
-const HueScaleDefinition = Schema.Record(HueStep, HexColor)
+const HueScaleDefinition = Schema.Record(Schema.TemplateLiteral([HueStep]), HexColor)
 const HueValueDefinition = Schema.Union([
   Schema.String.check(Schema.isPattern(/^\$hue\..+$/)),
   HueScaleDefinition,

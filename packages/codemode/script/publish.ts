@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { Script } from "@opencode/script"
+import { script } from "@deepthroat/script"
 import { $ } from "bun"
 import { mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
@@ -52,7 +52,7 @@ try {
   await Bun.write("package.json", JSON.stringify(pkg, null, 2) + "\n")
   await rm(tarball, { force: true })
   await $`bun pm pack`
-  const consumer = await mkdtemp(join(tmpdir(), "opencode-codemode-"))
+  const consumer = await mkdtemp(join(tmpdir(), "deepthroat-codemode-"))
   try {
     await Bun.write(
       join(consumer, "package.json"),
@@ -68,7 +68,7 @@ try {
   } finally {
     await rm(consumer, { recursive: true, force: true })
   }
-  if (!dryRun) await $`npm publish ${tarball} --tag ${Script.channel} --access public`
+  if (!dryRun) await $`npm publish ${tarball} --tag ${script.channel} --access public`
 } finally {
   await Bun.write("package.json", originalText)
   await rm(tarball, { force: true })

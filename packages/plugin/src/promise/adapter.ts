@@ -1,6 +1,6 @@
-import { Tool } from "@opencode/schema/tool"
-import type { Rpc } from "@opencode/schema/rpc"
-import type { RpcCallOptions, RpcEventPayload } from "@opencode/client/promise/api"
+import { Tool } from "@deepthroat/schema/tool"
+import type { Rpc } from "@deepthroat/schema/rpc"
+import type { RpcCallOptions, RpcEventPayload } from "@deepthroat/client/promise/api"
 import { Effect, Schema, SchemaAST, Stream } from "effect"
 import type { Scope } from "effect"
 import { HttpApiEndpoint, HttpApiSchema } from "effect/http-api"
@@ -220,10 +220,10 @@ export function fromPromise(plugin: Plugin) {
     id: plugin.id,
     effect: (host) =>
       Effect.gen(function* () {
-        const [{ ClientApi }, { OpenCodeEvent }] = yield* Effect.promise(() =>
-          Promise.all([import("@opencode/protocol/client"), import("@opencode/protocol/groups/event")]),
+        const [{ ClientApi }, { deepthroatevent }] = yield* Effect.promise(() =>
+          Promise.all([import("@deepthroat/protocol/client"), import("@deepthroat/protocol/groups/event")]),
         )
-        const encodeOpenCodeEvent = Schema.encodeUnknownEffect(OpenCodeEvent)
+        const encodedeepthroatevent = Schema.encodeUnknownEffect(deepthroatevent)
         const AgentEndpoints = ClientApi.groups["server.agent"].endpoints
         const CommandEndpoints = ClientApi.groups["server.command"].endpoints
         const CredentialEndpoints = ClientApi.groups["server.credential"].endpoints
@@ -332,7 +332,7 @@ export function fromPromise(plugin: Plugin) {
             subscribe: (options) =>
               streams(
                 host.event.subscribe().pipe(
-                  Stream.mapEffect((event) => encodeOpenCodeEvent(event)),
+                  Stream.mapEffect((event) => encodedeepthroatevent(event)),
                   Stream.map((event) => event as PromiseEvent),
                 ),
                 options,

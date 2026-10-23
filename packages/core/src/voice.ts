@@ -1,15 +1,15 @@
 export * as Voice from "./voice.js"
 
-import { type AIError } from "@opencode/ai"
+import { type AIError } from "@deepthroat/ai"
 import {
   Realtime,
   type RealtimeSession,
   type RealtimeTransport,
   type RealtimeTransportInput,
   type RealtimeTransportType,
-} from "@opencode/ai/experimental"
-import { RequestExecutor } from "@opencode/ai/route"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
+} from "@deepthroat/ai/experimental"
+import { RequestExecutor } from "@deepthroat/ai/route"
+import { makeLocationNode } from "@deepthroat/util/effect/app-node"
 import { Context, Effect, Layer, Redacted, Schema } from "effect"
 import { requestExecutor } from "./effect/app-node-platform.js"
 import { Integration } from "./integration.js"
@@ -49,7 +49,7 @@ export interface InstructInput {
 
 /**
  * An integration that runs sessions for some models on its own account instead of a stored provider key, such as
- * the OpenCode Console's hosted GPT-Live. Its sessions' backend instructions change through it.
+ * the DeepThroat Console's hosted GPT-Live. Its sessions' backend instructions change through it.
  */
 export interface Host {
   readonly integration: string
@@ -80,7 +80,7 @@ export interface Interface {
   readonly host: (host: Host | undefined) => Effect.Effect<void>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Voice") {}
+export class Service extends Context.Service<Service, Interface>()("@deepthroat/Voice") {}
 
 export const layer = Layer.effect(
   Service,

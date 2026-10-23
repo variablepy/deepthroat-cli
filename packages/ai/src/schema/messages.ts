@@ -1,6 +1,6 @@
 import { Option, Schema } from "effect"
-import { withStatics } from "@opencode/schema/schema"
-import { Tool } from "@opencode/schema/tool"
+import { withStatics } from "@deepthroat/schema/schema"
+import { Tool } from "@deepthroat/schema/tool"
 import {
   CacheHint,
   CachePolicy,

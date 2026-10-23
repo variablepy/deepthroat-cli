@@ -1,29 +1,29 @@
 import { expect, test } from "bun:test"
-import { LLMClient, LanguageModel, Message, ToolDefinition } from "@opencode/ai"
-import { OpenAI } from "@opencode/ai/providers"
-import { Agent } from "@opencode/core/agent"
-import { Bus } from "@opencode/core/bus"
-import { Database } from "@opencode/core/database/database"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { llmClient } from "@opencode/core/effect/app-node-platform"
-import { Instructions } from "@opencode/core/instructions/index"
-import { PluginHooks } from "@opencode/core/plugin/hooks"
-import { Location } from "@opencode/core/location"
-import { Project } from "@opencode/core/project"
-import { ProjectTable } from "@opencode/core/project/sql"
-import { AbsolutePath } from "@opencode/core/schema"
-import { SessionCompaction } from "@opencode/core/session/compaction"
-import { SessionEvent } from "@opencode/core/session/event"
-import { SessionHistory } from "@opencode/core/session/history"
-import { SessionInbox } from "@opencode/core/session/inbox"
-import { InstructionState } from "@opencode/core/session/instruction-state"
-import { SessionMessage } from "@opencode/core/session/message"
-import { SessionModelRequest } from "@opencode/core/session/model-request"
-import { SessionProjector } from "@opencode/core/session/projector"
-import { SessionRunnerModel } from "@opencode/core/session/runner/model"
-import { SessionSchema } from "@opencode/core/session/schema"
-import { SessionStore } from "@opencode/core/session/store"
-import { LayerNode } from "@opencode/util/effect/layer-node"
+import { LLMClient, LanguageModel, Message, ToolDefinition } from "@deepthroat/ai"
+import { responsesfixture } from "./lib/responses"
+import { Agent } from "@deepthroat/core/agent"
+import { Bus } from "@deepthroat/core/bus"
+import { Database } from "@deepthroat/core/database/database"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { llmClient } from "@deepthroat/core/effect/app-node-platform"
+import { Instructions } from "@deepthroat/core/instructions/index"
+import { PluginHooks } from "@deepthroat/core/plugin/hooks"
+import { Location } from "@deepthroat/core/location"
+import { Project } from "@deepthroat/core/project"
+import { ProjectTable } from "@deepthroat/core/project/sql"
+import { AbsolutePath } from "@deepthroat/core/schema"
+import { SessionCompaction } from "@deepthroat/core/session/compaction"
+import { SessionEvent } from "@deepthroat/core/session/event"
+import { SessionHistory } from "@deepthroat/core/session/history"
+import { SessionInbox } from "@deepthroat/core/session/inbox"
+import { InstructionState } from "@deepthroat/core/session/instruction-state"
+import { SessionMessage } from "@deepthroat/core/session/message"
+import { SessionModelRequest } from "@deepthroat/core/session/model-request"
+import { SessionProjector } from "@deepthroat/core/session/projector"
+import { SessionRunnerModel } from "@deepthroat/core/session/runner/model"
+import { SessionSchema } from "@deepthroat/core/session/schema"
+import { SessionStore } from "@deepthroat/core/session/store"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
 import { DateTime, Deferred, Effect, Fiber, Schema } from "effect"
 import { testEffect } from "./lib/effect"
 
@@ -139,7 +139,7 @@ const setup = Effect.fnUntraced(function* (options: { endpoint?: boolean } = {})
         void server.stop(true)
       }),
   )
-  const native = OpenAI.configure({ apiKey: "fixture", baseURL: server.url.toString() }).responses("gpt-5.4-mini")
+  const native = responsesfixture.configure({ apiKey: "fixture", baseURL: server.url.toString() }).responses("gpt-5.4-mini")
   const model = SessionRunnerModel.resolved(
     endpoint
       ? LanguageModel.update(native, {
@@ -402,7 +402,7 @@ it.live("compaction hooks supply the summary instead of provider compaction", ()
 )
 
 test("retained user budget counts attachments and drops whole oldest messages", () => {
-  const model = SessionRunnerModel.resolved(OpenAI.responses("gpt-5.4-mini"), {
+  const model = SessionRunnerModel.resolved(responsesfixture.responses("gpt-5.4-mini"), {
     capabilities: { tools: true, input: ["text", "image"], output: ["text"] },
     cost: [],
     limit: { context: 200_000, output: 32_000 },

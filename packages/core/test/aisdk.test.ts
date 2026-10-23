@@ -1,11 +1,11 @@
 import { APICallError } from "@ai-sdk/provider"
 import type { LanguageModelV3, LanguageModelV3StreamPart } from "@ai-sdk/provider"
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible"
-import { AISDK } from "@opencode/core/aisdk"
-import { SessionRunnerRetry } from "@opencode/core/session/runner/retry"
-import { toSessionError } from "@opencode/core/session/to-session-error"
-import { Model } from "@opencode/core/model"
-import { Provider } from "@opencode/core/provider"
+import { AISDK } from "@deepthroat/core/aisdk"
+import { SessionRunnerRetry } from "@deepthroat/core/session/runner/retry"
+import { toSessionError } from "@deepthroat/core/session/to-session-error"
+import { Model } from "@deepthroat/core/model"
+import { Provider } from "@deepthroat/core/provider"
 import {
   Media,
   LLM,
@@ -20,9 +20,9 @@ import {
   TransportError,
   UnknownProviderError,
   isContextOverflowFailure,
-} from "@opencode/ai"
-import { LLMClient, RequestExecutor } from "@opencode/ai/route"
-import { compileRequest } from "@opencode/ai/route/client"
+} from "@deepthroat/ai"
+import { LLMClient, RequestExecutor } from "@deepthroat/ai/route"
+import { compileRequest } from "@deepthroat/ai/route/client"
 import { expect } from "bun:test"
 import { Effect, Layer } from "effect"
 import { HttpClientRequest, HttpClientResponse } from "effect/http"

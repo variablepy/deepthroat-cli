@@ -4,7 +4,7 @@ import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
 import { Updater } from "../../services/updater"
 import { handlePromptErrors } from "../../ui/prompt"
-import { OPENCODE_VERSION } from "../../version"
+import { deepthroatversion } from "../../version"
 import { stripVTControlCharacters } from "node:util"
 
 export default Runtime.handler(
@@ -16,19 +16,19 @@ export default Runtime.handler(
       const method = Option.getOrUndefined(input.method) ?? (yield* updater.method())
       if (!method)
         return yield* Effect.fail(
-          new Error("Could not detect the installation method. Pass --method to choose how to upgrade OpenCode."),
+          new Error("Could not detect the installation method. Pass --method to choose how to upgrade DeepThroat."),
         )
 
       log.info(`Using method: ${method}`)
       const target = Option.getOrUndefined(input.target) ?? (yield* updater.latest(method))
       const version = target.trim().replace(/^v/, "")
-      if (version === OPENCODE_VERSION) {
-        log.warn(`OpenCode upgrade skipped: ${version} is already installed`)
+      if (version === deepthroatversion) {
+        log.warn(`DeepThroat upgrade skipped: ${version} is already installed`)
         outro("Done")
         return
       }
 
-      log.info(`From ${OPENCODE_VERSION} → ${version}`)
+      log.info(`From ${deepthroatversion} → ${version}`)
       const progress = spinner()
       progress.start("Upgrading...")
       yield* updater.upgrade(method, target).pipe(
@@ -41,14 +41,14 @@ export default Runtime.handler(
       handlePromptErrors(
         effect.pipe(
           Effect.mapError((error) =>
-            error instanceof Updater.UpgradeError ? new Error(formatUpgradeError(error), { cause: error }) : error,
+            error instanceof Updater.UpgradeError ? new Error(formatupgradeerror(error), { cause: error }) : error,
           ),
         ),
       ),
   ),
 )
 
-function formatUpgradeError(error: Updater.UpgradeError) {
+function formatupgradeerror(error: Updater.UpgradeError) {
   const clean = (value: string) => stripVTControlCharacters(value).replaceAll("\r", "").trim()
   const line = (value: string) => clean(value).replace(/\s+/g, " ")
   const detail = wrap(clean(error.detail), Math.max(24, (process.stdout.columns ?? 80) - 7)).join("\n")

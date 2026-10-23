@@ -11,9 +11,9 @@ export const VoiceModel = Schema.Struct({
   provider: Schema.String,
   transports: Schema.Array(VoiceTransportType),
   available: Schema.Boolean,
-  /** The integration whose connection starts its sessions: the provider's stored key, or `opencode` when the connected OpenCode Console hosts it. */
+  /** The integration whose connection starts its sessions: the provider's stored key, or `deepthroat` when the connected DeepThroat Console hosts it. */
   integration: Schema.optional(Schema.String),
-  /** The OpenCode Console workspace a hosted model's sessions bill to. */
+  /** The DeepThroat Console workspace a hosted model's sessions bill to. */
   workspace: Schema.optional(Schema.String),
 }).annotate({ identifier: "VoiceModel" })
 
@@ -64,7 +64,7 @@ export const VoiceGroup = HttpApiGroup.make("server.voice")
         identifier: "experimental.voice.models",
         summary: "List voice models",
         description:
-          "List supported voice models, their transports, whether the server has a usable API key for each provider or the connected OpenCode Console hosts the model, and the Console workspace a hosted model bills to.",
+          "List supported voice models, their transports, whether the server has a usable API key for each provider or the connected DeepThroat Console hosts the model, and the Console workspace a hosted model bills to.",
       }),
     ),
   )
@@ -88,7 +88,7 @@ export const VoiceGroup = HttpApiGroup.make("server.voice")
         identifier: "experimental.voice.session",
         summary: "Create voice session",
         description:
-          "Create a server-brokered voice session using the server's configured provider credentials, or the connected OpenCode Console when it hosts the model, and return the WebRTC SDP answer or WebSocket ephemeral token.",
+          "Create a server-brokered voice session using the server's configured provider credentials, or the connected DeepThroat Console when it hosts the model, and return the WebRTC SDP answer or WebSocket ephemeral token.",
       }),
     ),
   )
@@ -103,7 +103,7 @@ export const VoiceGroup = HttpApiGroup.make("server.voice")
         identifier: "experimental.voice.instructions",
         summary: "Replace voice session instructions",
         description:
-          "Replace the backend instructions of a running session the connected OpenCode Console hosts, whose data channel can't change them.",
+          "Replace the backend instructions of a running session the connected DeepThroat Console hosts, whose data channel can't change them.",
       }),
     ),
   )

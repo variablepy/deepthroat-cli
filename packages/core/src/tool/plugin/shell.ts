@@ -1,10 +1,10 @@
 export * as ShellTool from "./shell.js"
 
-import { ToolFailure } from "@opencode/ai"
-import type { Context } from "@opencode/plugin/effect/plugin"
-import type { SessionHooks } from "@opencode/plugin/effect/session"
-import type { ShellCreateBefore } from "@opencode/plugin/effect/shell"
-import type { Tool } from "@opencode/schema/tool"
+import { ToolFailure } from "@deepthroat/ai"
+import type { Context } from "@deepthroat/plugin/effect/plugin"
+import type { SessionHooks } from "@deepthroat/plugin/effect/session"
+import type { ShellCreateBefore } from "@deepthroat/plugin/effect/shell"
+import type { Tool } from "@deepthroat/schema/tool"
 import { Deferred, Effect, Schema, Scope } from "effect"
 import { Config } from "../../config.js"
 import { Environment } from "../../environment/index.js"
@@ -101,7 +101,7 @@ const backgroundResult = (shellID: string, file: string) => ({
 })
 
 export const Plugin = {
-  id: "opencode.tool.shell",
+  id: "deepthroat.tool.shell",
   effect: Effect.fn("ShellTool.Plugin")(function* (ctx: Context) {
     const sessions = yield* Session.Service
     const jobs = yield* Job.Service
@@ -211,9 +211,9 @@ export const Plugin = {
                 (invocation) =>
                   Effect.gen(function* () {
                     invocation.env.AGENT = "1"
-                    invocation.env.OPENCODE = "1"
-                    invocation.env.AI_AGENT ||= "opencode"
-                    invocation.env.OPENCODE_SESSION_ID = context.sessionID
+                    invocation.env.DEEPTHROAT = "1"
+                    invocation.env.AI_AGENT ||= "deepthroat"
+                    invocation.env.DEEPTHROAT_SESSION_ID = context.sessionID
                     finalTimeout = yield* prepare(invocation, context)
                   }),
               )

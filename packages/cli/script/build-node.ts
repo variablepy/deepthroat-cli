@@ -6,8 +6,8 @@ import { chmod, copyFile, mkdir, mkdtemp, readFile, realpath, rename, rm, stat, 
 import os from "node:os"
 import path from "node:path"
 import { build } from "vite"
-import { Script } from "@opencode/script"
-import { embed } from "@opencode/script/highlights"
+import { script } from "@deepthroat/script"
+import { embed } from "@deepthroat/script/highlights"
 import pkg from "../package.json"
 import { collectNodeAssets, copyNodeAssets, hashNodeAssets, seaAssetMap } from "./node-assets"
 import { appArchiveAsset, mainConfig } from "../vite.node.config"
@@ -30,7 +30,7 @@ const bundleOnly = process.argv.includes("--bundle-only")
 const single = process.argv.includes("--single")
 const skipInstall = process.argv.includes("--skip-install")
 const appArchiveOnly = process.argv.includes("--app-archive-only")
-const highlights = Script.preview ? undefined : embed(process.env.OPENCODE_RELEASE_NOTES)
+const highlights = script.preview ? undefined : embed(process.env.DEEPTHROAT_RELEASE_NOTES)
 const requestedArchive = process.argv.find((arg) => arg.startsWith("--app-archive="))?.slice("--app-archive=".length)
 const archivePath = requestedArchive ? path.resolve(dir, requestedArchive) : undefined
 const requested = process.argv.find((arg) => arg.startsWith("--target="))?.slice("--target=".length)
@@ -52,7 +52,7 @@ if (!skipInstall) run(process.execPath, ["install", "--os=*", "--cpu=*"])
 if (appArchiveOnly) {
   if (!archivePath) throw new Error("--app-archive-only requires --app-archive=<path>")
   await mkdir(path.dirname(archivePath), { recursive: true })
-  await writeFile(archivePath, await buildAppArchive(Script.channel))
+  await writeFile(archivePath, await buildAppArchive(script.channel))
   process.exit(0)
 }
 if (targets.length === 0) {
@@ -62,7 +62,7 @@ if (targets.length === 0) {
 if (!bundleOnly && targets.some((target) => target.platform === "darwin" && target.arch === "x64")) {
   throw new Error("Node 26.4 SEA does not support macOS x64")
 }
-const appArchive = archivePath ? await Bun.file(archivePath).bytes() : await buildAppArchive(Script.channel)
+const appArchive = archivePath ? await Bun.file(archivePath).bytes() : await buildAppArchive(script.channel)
 if (!bundleOnly) await rm(outdir, { recursive: true, force: true })
 const builder =
   !bundleOnly || targets.some((target) => target.platform === process.platform && target.arch === process.arch)
@@ -94,8 +94,8 @@ for (const target of targets) {
   await rm("dist-node", { recursive: true, force: true })
   const assetHash = await hashNodeAssets(assets)
   const input = {
-    version: Script.version,
-    channel: Script.channel,
+    version: script.version,
+    channel: script.channel,
     highlights,
     assetHash,
     target,
@@ -103,24 +103,24 @@ for (const target of targets) {
   await copyNodeAssets(assets)
   await writeFile(path.join("dist-node", "assets", appArchiveAsset), appArchive)
   await build(mainConfig(input))
-  await assertTextImportsInlined("dist-node/opencode.mjs")
-  if (bundleOnly) await verifyArtifact("dist-node/opencode.mjs")
+  await assertTextImportsInlined("dist-node/deepthroat.mjs")
+  if (bundleOnly) await verifyArtifact("dist-node/deepthroat.mjs")
 
   const host = target.platform === process.platform && target.arch === process.arch
   if (host) {
     if (!builder) throw new Error("Node SEA builder is unavailable")
-    run(builder, [...nodeExecArgv, "dist-node/opencode.mjs", "--version"])
-    run(builder, [...nodeExecArgv, "dist-node/opencode.mjs", "--help"])
+    run(builder, [...nodeExecArgv, "dist-node/deepthroat.mjs", "--version"])
+    run(builder, [...nodeExecArgv, "dist-node/deepthroat.mjs", "--help"])
   }
   if (bundleOnly) continue
 
   const name = `cli-node-${targetName(target)}`
-  const binary = target.platform === "win32" ? "opencode2-node.exe" : "opencode2-node"
+  const binary = target.platform === "win32" ? "deepthroat2-node.exe" : "deepthroat2-node"
   const output = path.join(outdir, name, "bin", binary)
   if (!builder) throw new Error("Node SEA builder is unavailable")
   await mkdir(path.dirname(output), { recursive: true })
   const config = {
-    main: "dist-node/opencode.mjs",
+    main: "dist-node/deepthroat.mjs",
     mainFormat: "module",
     executable: await resolveTargetNode(target, builder),
     output: path.relative(dir, output),
@@ -143,10 +143,10 @@ for (const target of targets) {
     path.join(outdir, name, "package.json"),
     `${JSON.stringify(
       {
-        name: `@opencode/${name}`,
-        version: Script.version,
+        name: `@deepthroat/${name}`,
+        version: script.version,
         license: pkg.license,
-        repository: { type: "git", url: "git+https://github.com/anomalyco/opencode.git" },
+        repository: { type: "git", url: "git+https://github.com/variablepy/deepthroat-cli.git" },
         os: [target.platform],
         cpu: [target.arch],
       },
@@ -226,7 +226,7 @@ async function resolveTargetNode(target: NodeTarget, host?: string) {
 }
 
 async function smoke(output: string) {
-  const root = await mkdtemp(path.join(os.tmpdir(), "opencode-node-smoke-"))
+  const root = await mkdtemp(path.join(os.tmpdir(), "deepthroat-node-smoke-"))
   const executable = path.join(root, path.basename(output))
   await copyFile(output, executable)
   if (process.platform !== "win32") await chmod(executable, 0o755)

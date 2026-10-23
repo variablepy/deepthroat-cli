@@ -1,9 +1,9 @@
-import type { FileSystem } from "@opencode/core/filesystem"
+import type { FileSystem } from "@deepthroat/core/filesystem"
 import fs from "fs/promises"
 import path from "path"
 import { describe, expect } from "bun:test"
-import { Event } from "@opencode/schema/config"
-import { Money } from "@opencode/schema/money"
+import { Event } from "@deepthroat/schema/config"
+import { Money } from "@deepthroat/schema/money"
 import {
   DateTime,
   Deferred,
@@ -22,24 +22,24 @@ import {
   Stream,
 } from "effect"
 import { TestClock } from "effect/testing"
-import { Agent } from "@opencode/core/agent"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Global } from "@opencode/util/global"
-import { LocationServiceMap, type LocationServices } from "@opencode/core/location-services"
-import { LocationActivity } from "@opencode/core/location-activity"
-import { Location } from "@opencode/core/location"
-import { Config } from "@opencode/core/config"
-import { LocationWatcher } from "@opencode/core/filesystem/location-watcher"
-import { Plugin } from "@opencode/core/plugin"
-import { Model } from "@opencode/core/model"
-import { Project } from "@opencode/core/project"
-import { Provider } from "@opencode/core/provider"
-import { AbsolutePath } from "@opencode/core/schema"
-import { Session } from "@opencode/core/session"
-import { Workspace } from "@opencode/core/workspace"
-import { SessionEvent } from "@opencode/core/session/event"
-import { SessionRunnerModel } from "@opencode/core/session/runner/model"
+import { Agent } from "@deepthroat/core/agent"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
+import { Global } from "@deepthroat/util/global"
+import { LocationServiceMap, type LocationServices } from "@deepthroat/core/location-services"
+import { LocationActivity } from "@deepthroat/core/location-activity"
+import { Location } from "@deepthroat/core/location"
+import { Config } from "@deepthroat/core/config"
+import { LocationWatcher } from "@deepthroat/core/filesystem/location-watcher"
+import { Plugin } from "@deepthroat/core/plugin"
+import { Model } from "@deepthroat/core/model"
+import { Project } from "@deepthroat/core/project"
+import { Provider } from "@deepthroat/core/provider"
+import { AbsolutePath } from "@deepthroat/core/schema"
+import { Session } from "@deepthroat/core/session"
+import { Workspace } from "@deepthroat/core/workspace"
+import { SessionEvent } from "@deepthroat/core/session/event"
+import { SessionRunnerModel } from "@deepthroat/core/session/runner/model"
 import { tmpdir, tmpdirScoped } from "./fixture/tmpdir"
 import { tempGlobalLayer } from "./fixture/global"
 import { offlineModels } from "./fixture/models"
@@ -506,7 +506,7 @@ describe("LocationServiceMap", () => {
         Effect.gen(function* () {
           yield* Effect.promise(() =>
             fs.writeFile(
-              path.join(dir.path, "opencode.json"),
+              path.join(dir.path, "deepthroat.json"),
               JSON.stringify({ agents: { plan: { disabled: true } } }),
             ),
           )
@@ -535,7 +535,7 @@ describe("LocationServiceMap", () => {
           const location = Location.Ref.make({ directory: AbsolutePath.make(dir.path) })
           yield* Effect.promise(() =>
             fs.writeFile(
-              path.join(dir.path, "opencode.json"),
+              path.join(dir.path, "deepthroat.json"),
               JSON.stringify({
                 providers: {
                   unavailable: {
@@ -638,7 +638,7 @@ describe("LocationServiceMap", () => {
             const modelState = yield* Model.Service
             yield* providers.transform((editor) => {
               editor.update(Provider.ID.make("aliased"), (provider) => {
-                provider.package = "@opencode/ai/providers/openai"
+                provider.package = "@deepthroat/ai/providers/openai"
               })
               editor.models.update(Provider.ID.make("aliased"), Model.ID.make("fast"), (model) => {
                 // Catalog id and package model id intentionally differ, like gpt-5.5-fast -> gpt-5.5.

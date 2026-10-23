@@ -1,7 +1,7 @@
-import { Event } from "@opencode/schema/event"
-import { EventManifest } from "@opencode/schema/event-manifest"
-import { Location } from "@opencode/schema/location"
-import type { Definition } from "@opencode/schema/event"
+import { Event } from "@deepthroat/schema/event"
+import { EventManifest } from "@deepthroat/schema/event-manifest"
+import { Location } from "@deepthroat/schema/location"
+import type { Definition } from "@deepthroat/schema/event"
 import { Schema } from "effect"
 import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema, OpenApi } from "effect/http-api"
 
@@ -61,8 +61,8 @@ export const makeEventGroup = <const Definitions extends ReadonlyArray<Definitio
 
 const event = make(EventManifest.ServerDefinitions)
 export const EventGroup = event.group
-export const OpenCodeEvent = event.schema
-export type OpenCodeEvent = typeof OpenCodeEvent.Type
-export type OpenCodeEventEncoded = typeof OpenCodeEvent.Encoded
-export const isOpenCodeEvent = (event: { readonly type: string }): event is OpenCodeEvent =>
+export const deepthroatevent = event.schema
+export type deepthroatevent = typeof deepthroatevent.Type
+export type DeepThroatEventEncoded = typeof deepthroatevent.Encoded
+export const isdeepthroatevent = (event: { readonly type: string }): event is deepthroatevent =>
   event.type === "server.connected" || EventManifest.isServer(event) || event.type.startsWith("rpc.")

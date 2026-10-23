@@ -1,6 +1,6 @@
-import type { OpenCode } from "./client.js"
+import type { deepthroat } from "./client.js"
 
-type Client = ReturnType<typeof OpenCode.make>
+type Client = ReturnType<typeof deepthroat.make>
 
 export type { RpcApi, RpcCallOptions, RpcClient, RpcEventPayload } from "./rpc.js"
 

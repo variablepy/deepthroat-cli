@@ -15,77 +15,77 @@ import {
   InvalidRequestError,
   RateLimitError,
   UnknownProviderError,
-} from "@opencode/ai"
-import { OpenAIChat } from "@opencode/ai/protocols/openai-chat"
-import { AnthropicMessages, OpenAIResponses } from "@opencode/ai/protocols"
-import { compileRequest } from "@opencode/ai/route/client"
-import { TestLLM } from "@opencode/ai/testing"
-import type { SessionHooks } from "@opencode/plugin/effect/session"
-import { Database } from "@opencode/core/database/database"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { LayerNodePlatform } from "@opencode/core/effect/app-node-platform"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Bus } from "@opencode/core/bus"
-import { Event } from "@opencode/schema/event"
-import { App } from "@opencode/core/app"
-import { Permission } from "@opencode/core/permission"
-import { EventTable } from "@opencode/core/event/sql"
-import { Project } from "@opencode/core/project"
-import { ProjectTable } from "@opencode/core/project/sql"
-import { Form } from "@opencode/core/form"
-import { AbsolutePath } from "@opencode/core/schema"
-import { Session } from "@opencode/core/session"
-import { Snapshot } from "@opencode/core/snapshot"
-import { SessionEvent } from "@opencode/core/session/event"
-import { SessionCompaction } from "@opencode/core/session/compaction"
-import { SessionInbox } from "@opencode/core/session/inbox"
-import { SessionMessage } from "@opencode/core/session/message"
-import { SessionModelTransport } from "@opencode/core/session/model-transport"
-import { Money } from "@opencode/schema/money"
-import { SessionProjector } from "@opencode/core/session/projector"
-import { SessionExecution } from "@opencode/core/session/execution"
-import { SessionRunCoordinator } from "@opencode/core/session/run-coordinator"
-import { SessionRunner } from "@opencode/core/session/runner/index"
-import { SessionRunnerLLM } from "@opencode/core/session/runner/llm"
-import { SessionRunnerModel } from "@opencode/core/session/runner/model"
-import { SessionUsage } from "@opencode/core/session/usage"
-import { PluginSupervisor } from "@opencode/core/plugin/supervisor"
-import { Plugin } from "@opencode/core/plugin"
-import { PluginHooks } from "@opencode/core/plugin/hooks"
-import { PluginPromise } from "@opencode/core/plugin/promise"
-import { OptimizePlugin } from "@opencode/core/plugin/optimize"
-import { IdentityPlugin } from "@opencode/core/plugin/identity"
-import { QuestionTool } from "@opencode/core/tool/plugin/question"
-import { Agent } from "@opencode/core/agent"
-import { Config } from "@opencode/core/config"
-import { Document, Info } from "@opencode/schema/config"
-import { ConfigCompaction } from "@opencode/schema/config/compaction"
-import { Tool } from "@opencode/core/tool"
-import type { Info as ToolInfo } from "@opencode/schema/tool"
-import { InstructionStateTable, SessionInboxTable, SessionMessageTable, SessionTable } from "@opencode/core/session/sql"
-import { InstructionEntry } from "@opencode/core/session/instruction-entry"
-import { SessionStore } from "@opencode/core/session/store"
-import { Instructions } from "@opencode/core/instructions/index"
-import { InstructionBuiltIns } from "@opencode/core/instructions/builtins"
-import { InstructionDiscovery } from "@opencode/core/instruction-discovery"
-import { SkillInstructions } from "@opencode/core/skill/instructions"
-import { ReferenceInstructions } from "@opencode/core/reference/instructions"
-import { McpInstructions } from "@opencode/core/mcp/instructions"
-import { SessionSystemPrompt } from "@opencode/core/session/system-prompt"
-import { ID, Model } from "@opencode/core/model"
-import { Location } from "@opencode/core/location"
-import { Provider } from "@opencode/core/provider"
+} from "@deepthroat/ai"
+import { OpenAIChat } from "@deepthroat/ai/protocols/openai-chat"
+import { AnthropicMessages, OpenAIResponses } from "@deepthroat/ai/protocols"
+import { compileRequest } from "@deepthroat/ai/route/client"
+import { TestLLM } from "@deepthroat/ai/testing"
+import type { SessionHooks } from "@deepthroat/plugin/effect/session"
+import { Database } from "@deepthroat/core/database/database"
+import { makeLocationNode } from "@deepthroat/util/effect/app-node"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { LayerNodePlatform } from "@deepthroat/core/effect/app-node-platform"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
+import { Bus } from "@deepthroat/core/bus"
+import { Event } from "@deepthroat/schema/event"
+import { App } from "@deepthroat/core/app"
+import { Permission } from "@deepthroat/core/permission"
+import { EventTable } from "@deepthroat/core/event/sql"
+import { Project } from "@deepthroat/core/project"
+import { ProjectTable } from "@deepthroat/core/project/sql"
+import { Form } from "@deepthroat/core/form"
+import { AbsolutePath } from "@deepthroat/core/schema"
+import { Session } from "@deepthroat/core/session"
+import { Snapshot } from "@deepthroat/core/snapshot"
+import { SessionEvent } from "@deepthroat/core/session/event"
+import { SessionCompaction } from "@deepthroat/core/session/compaction"
+import { SessionInbox } from "@deepthroat/core/session/inbox"
+import { SessionMessage } from "@deepthroat/core/session/message"
+import { SessionModelTransport } from "@deepthroat/core/session/model-transport"
+import { Money } from "@deepthroat/schema/money"
+import { SessionProjector } from "@deepthroat/core/session/projector"
+import { SessionExecution } from "@deepthroat/core/session/execution"
+import { SessionRunCoordinator } from "@deepthroat/core/session/run-coordinator"
+import { SessionRunner } from "@deepthroat/core/session/runner/index"
+import { SessionRunnerLLM } from "@deepthroat/core/session/runner/llm"
+import { SessionRunnerModel } from "@deepthroat/core/session/runner/model"
+import { SessionUsage } from "@deepthroat/core/session/usage"
+import { PluginSupervisor } from "@deepthroat/core/plugin/supervisor"
+import { Plugin } from "@deepthroat/core/plugin"
+import { PluginHooks } from "@deepthroat/core/plugin/hooks"
+import { PluginPromise } from "@deepthroat/core/plugin/promise"
+import { OptimizePlugin } from "@deepthroat/core/plugin/optimize"
+import { IdentityPlugin } from "@deepthroat/core/plugin/identity"
+import { QuestionTool } from "@deepthroat/core/tool/plugin/question"
+import { Agent } from "@deepthroat/core/agent"
+import { Config } from "@deepthroat/core/config"
+import { Document, Info } from "@deepthroat/schema/config"
+import { ConfigCompaction } from "@deepthroat/schema/config/compaction"
+import { Tool } from "@deepthroat/core/tool"
+import type { Info as ToolInfo } from "@deepthroat/schema/tool"
+import { InstructionStateTable, SessionInboxTable, SessionMessageTable, SessionTable } from "@deepthroat/core/session/sql"
+import { InstructionEntry } from "@deepthroat/core/session/instruction-entry"
+import { SessionStore } from "@deepthroat/core/session/store"
+import { Instructions } from "@deepthroat/core/instructions/index"
+import { InstructionBuiltIns } from "@deepthroat/core/instructions/builtins"
+import { InstructionDiscovery } from "@deepthroat/core/instruction-discovery"
+import { SkillInstructions } from "@deepthroat/core/skill/instructions"
+import { ReferenceInstructions } from "@deepthroat/core/reference/instructions"
+import { McpInstructions } from "@deepthroat/core/mcp/instructions"
+import { SessionSystemPrompt } from "@deepthroat/core/session/system-prompt"
+import { ID, Model } from "@deepthroat/core/model"
+import { Location } from "@deepthroat/core/location"
+import { Provider } from "@deepthroat/core/provider"
 import { Cause, Context, DateTime, Deferred, Effect, Exit, Fiber, Layer, Queue, Schema, Scope, Stream } from "effect"
 import { TestClock } from "effect/testing"
 import { asc, desc, eq, sql } from "drizzle-orm"
 import { testEffect } from "./lib/effect"
 import { promptLocationNode } from "./fixture/prompt-location"
-import { LocationServiceMap } from "@opencode/core/location-service-map"
+import { LocationServiceMap } from "@deepthroat/core/location-service-map"
 import { Expected } from "./lib/session-message"
 import { permissionLayer } from "./lib/permission"
 import { agentHost, modelHost, host, noProviders } from "./plugin/host"
-import { CodeModeInstructions } from "@opencode/core/codemode/instructions"
+import { CodeModeInstructions } from "@deepthroat/core/codemode/instructions"
 
 const emptyCodeMode = `${CodeModeInstructions.render({ total: 0, shown: 0, namespaces: [] })}\n\n`
 type ToolBarrier = {
@@ -4784,13 +4784,13 @@ describe("SessionRunnerLLM", () => {
     yield* s.runPrompt("Run correlated request")
 
     expect(s.requests[0]?.http?.headers).toEqual({
-      "x-opencode-session-id": sessionID,
+      "x-deepthroat-session-id": sessionID,
       "x-session-affinity": sessionID,
       "X-Session-Id": sessionID,
       "User-Agent": App.useragent(App.make()),
-      "x-opencode-project": Project.ID.global,
-      "x-opencode-session": sessionID,
-      "x-opencode-client": "opencode",
+      "x-deepthroat-project": Project.ID.global,
+      "x-deepthroat-session": sessionID,
+      "x-deepthroat-client": "deepthroat",
     })
   })
 
@@ -4806,12 +4806,12 @@ describe("SessionRunnerLLM", () => {
     yield* s.runPrompt("Run child request")
 
     expect(s.requests[0]?.http?.headers).toMatchObject({
-      "x-opencode-session-id": sessionID,
-      "x-opencode-parent-session-id": parentID,
+      "x-deepthroat-session-id": sessionID,
+      "x-deepthroat-parent-session-id": parentID,
       "x-session-affinity": parentID,
       "X-Session-Id": parentID,
       "x-parent-session-id": parentID,
-      "x-opencode-session": parentID,
+      "x-deepthroat-session": parentID,
     })
     expect(s.requests[0]?.promptCacheKey).toBe(parentID)
   })

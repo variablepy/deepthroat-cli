@@ -1,1 +1,1 @@
-export { Rpc } from "@opencode/schema/rpc"
+export { Rpc } from "@deepthroat/schema/rpc"

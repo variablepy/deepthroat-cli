@@ -19,14 +19,14 @@ await Effect.runPromise(
       method: () =>
         Effect.sync(() => {
           record("method")
-          return Updater.methods.find((method) => method === (process.env.UPGRADE_TEST_METHOD ?? "npm"))
+          return Updater.methods.find((method) => method === (process.env.UPGRADE_TEST_METHOD ?? "standalone"))
         }),
       latest: (method) =>
         Effect.suspend(() => {
           record({ latest: method })
           return process.env.UPGRADE_TEST_LATEST_ERROR
             ? Effect.fail(new Error("Update check failed"))
-            : Effect.succeed("0.0.0-beta-new")
+            : Effect.succeed("0.2.0")
         }),
       upgrade: (method, version) =>
         Effect.suspend(() => {

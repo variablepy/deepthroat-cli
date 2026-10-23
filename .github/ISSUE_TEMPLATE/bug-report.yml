@@ -1,5 +1,5 @@
 name: Bug report
-description: Report an issue that should be fixed (avoid pasting giant AI generated summaries or your issue may be closed/ignored)
+description: Report a reproducible DeepThroat CLI issue
 body:
   - type: textarea
     id: description
@@ -19,10 +19,10 @@ body:
       required: false
 
   - type: input
-    id: opencode-version
+    id: deepthroat-version
     attributes:
-      label: OpenCode version
-      description: What version of OpenCode are you using?
+      label: DeepThroat version
+      description: What version of DeepThroat are you using?
     validations:
       required: false
 

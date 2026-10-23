@@ -1,9 +1,9 @@
 export * as BrowserConnection from "./connection.js"
 
-import type { Context } from "@opencode/plugin/effect/plugin"
-import type { RpcRegistration } from "@opencode/plugin/effect/rpc"
-import type { Session } from "@opencode/schema/session"
-import { Tool } from "@opencode/schema/tool"
+import type { Context } from "@deepthroat/plugin/effect/plugin"
+import type { RpcRegistration } from "@deepthroat/plugin/effect/rpc"
+import type { Session } from "@deepthroat/schema/session"
+import { Tool } from "@deepthroat/schema/tool"
 import { Deferred, Effect, Schema, Stream } from "effect"
 import { Browser } from "./rpc.js"
 import { BrowserTunnel } from "./tunnel.js"

@@ -1,6 +1,6 @@
 export * as ConfigProviderOptionsV1 from "./provider-options.js"
 
-import { isRecord } from "@opencode/ai/utils/record"
+import { isRecord } from "@deepthroat/ai/utils/record"
 
 type Options = Readonly<Record<string, unknown>>
 

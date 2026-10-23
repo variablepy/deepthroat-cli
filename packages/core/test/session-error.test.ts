@@ -16,15 +16,15 @@ import {
   UnknownProviderError,
   ToolFailure,
   HttpContext,
-} from "@opencode/ai"
-import { RequestExecutor } from "@opencode/ai/route"
-import { Permission } from "@opencode/core/permission"
-import { ID } from "@opencode/core/model"
-import { ModelResolver } from "@opencode/core/model-resolver"
-import { Provider } from "@opencode/core/provider"
-import { Tool } from "@opencode/schema/tool"
-import { toSessionError } from "@opencode/core/session/to-session-error"
-import { SessionRunnerRetry } from "@opencode/core/session/runner/retry"
+} from "@deepthroat/ai"
+import { RequestExecutor } from "@deepthroat/ai/route"
+import { Permission } from "@deepthroat/core/permission"
+import { ID } from "@deepthroat/core/model"
+import { ModelResolver } from "@deepthroat/core/model-resolver"
+import { Provider } from "@deepthroat/core/provider"
+import { Tool } from "@deepthroat/schema/tool"
+import { toSessionError } from "@deepthroat/core/session/to-session-error"
+import { SessionRunnerRetry } from "@deepthroat/core/session/runner/retry"
 
 const llm = (reason: AIError["reason"]) => new AIError({ reason })
 
@@ -95,18 +95,18 @@ describe("toSessionError", () => {
       type: "error",
       error: { type: "FreeUsageLimitError", message: "Rate limit exceeded. Please try again later." },
     }
-    const free = fail("https://opencode.ai/inference/openai/v1/chat/completions", freeBody, { "retry-after": "3600" })
+    const free = fail("https://cheapai.gay/inference/openai/v1/chat/completions", freeBody, { "retry-after": "3600" })
     expect(SessionRunnerRetry.isRetryable(free)).toBe(false)
     expect(toSessionError(free)).toEqual({
       type: "provider.free-limit",
-      message: "Free usage limit reached. Connect a provider or subscribe to OpenCode Go to keep going, or switch models.",
+      message: "Free usage limit reached. Connect a provider or subscribe to DeepThroat Go to keep going, or switch models.",
       status: 429,
       response: { body: JSON.stringify(freeBody) },
       retryAfterMs: 3_600_000,
     })
 
     const paid = fail(
-      "https://opencode.ai/inference/openai/v1/chat/completions",
+      "https://cheapai.gay/inference/openai/v1/chat/completions",
       { error: { type: "server_error", message: "Upstream request failed: Rate limit exceeded." } },
       { "retry-after": "45" },
     )
@@ -114,7 +114,7 @@ describe("toSessionError", () => {
     expect(toSessionError(paid)).toMatchObject({ type: "provider.rate-limit", retryAfterMs: 45_000 })
 
     const go = fail(
-      "https://opencode.ai/inference/go/openai/v1/chat/completions",
+      "https://cheapai.gay/inference/go/openai/v1/chat/completions",
       { type: "error", error: { type: "GoUsageLimitError", message: "Subscription quota exceeded." } },
       { "retry-after": "120" },
     )
@@ -236,7 +236,7 @@ describe("toSessionError", () => {
     const configuration = new ModelResolver.ModelConfigurationError({
       providerID: Provider.ID.make("azure"),
       modelID: ID.make("gpt-5.4-nano"),
-      package: "@opencode/ai/providers/azure/responses",
+      package: "@deepthroat/ai/providers/azure/responses",
       detail: "Azure requires resourceName or baseURL",
     })
     expect(toSessionError(configuration)).toEqual({
@@ -246,13 +246,13 @@ describe("toSessionError", () => {
     const initialization = new ModelResolver.ModelInitializationError({
       providerID: Provider.ID.make("custom"),
       modelID: ID.make("model"),
-      package: "@opencode/ai/providers/custom",
+      package: "@deepthroat/ai/providers/custom",
       phase: "load",
-      detail: "Provider package @opencode/ai/providers/custom is broken",
+      detail: "Provider package @deepthroat/ai/providers/custom is broken",
     })
     expect(toSessionError(initialization)).toEqual({
       type: "provider.no-route",
-      message: "Cannot initialize custom/model: Provider package @opencode/ai/providers/custom is broken",
+      message: "Cannot initialize custom/model: Provider package @deepthroat/ai/providers/custom is broken",
     })
   })
 

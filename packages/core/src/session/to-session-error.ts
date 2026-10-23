@@ -1,6 +1,6 @@
-import { AIError, ToolFailure, type FinishReasonDetails } from "@opencode/ai"
-import { Tool } from "@opencode/schema/tool"
-import { SessionError } from "@opencode/schema/session-error"
+import { AIError, ToolFailure, type FinishReasonDetails } from "@deepthroat/ai"
+import { Tool } from "@deepthroat/schema/tool"
+import { SessionError } from "@deepthroat/schema/session-error"
 import { Permission } from "../permission.js"
 import { Integration } from "../integration.js"
 import { AgentNotFoundError, StepFailedError } from "./error.js"
@@ -26,7 +26,7 @@ const tokenSharingMessages = {
 }
 
 const FREE_USAGE_LIMIT_MESSAGE =
-  "Free usage limit reached. Connect a provider or subscribe to OpenCode Go to keep going, or switch models."
+  "Free usage limit reached. Connect a provider or subscribe to DeepThroat Go to keep going, or switch models."
 
 export function toSessionError(cause: unknown): SessionError.Error {
   if (cause instanceof AIError) {

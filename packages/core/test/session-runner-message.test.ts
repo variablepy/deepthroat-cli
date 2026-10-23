@@ -1,15 +1,15 @@
 import { describe, expect, test } from "bun:test"
-import { Message, Media } from "@opencode/ai"
-import { Model } from "@opencode/core/model"
-import { Provider } from "@opencode/core/provider"
-import { SessionMessage } from "@opencode/core/session/message"
-import { AgentAttachment, Base64, FileAttachment, SkillAttachment } from "@opencode/schema/prompt"
-import { Skill } from "@opencode/schema/skill"
-import { toLLMMessages } from "@opencode/core/session/runner/to-llm-message"
-import { Agent } from "@opencode/core/agent"
-import { Shell } from "@opencode/schema/shell"
-import { Location } from "@opencode/schema/location"
-import { AbsolutePath } from "@opencode/schema/schema"
+import { Message, Media } from "@deepthroat/ai"
+import { Model } from "@deepthroat/core/model"
+import { Provider } from "@deepthroat/core/provider"
+import { SessionMessage } from "@deepthroat/core/session/message"
+import { AgentAttachment, Base64, FileAttachment, SkillAttachment } from "@deepthroat/schema/prompt"
+import { Skill } from "@deepthroat/schema/skill"
+import { toLLMMessages } from "@deepthroat/core/session/runner/to-llm-message"
+import { Agent } from "@deepthroat/core/agent"
+import { Shell } from "@deepthroat/schema/shell"
+import { Location } from "@deepthroat/schema/location"
+import { AbsolutePath } from "@deepthroat/schema/schema"
 import { DateTime } from "effect"
 import path from "path"
 import { pathToFileURL } from "url"
@@ -905,15 +905,15 @@ Earlier work
     ])
   })
 
-  test("replays flat state under an OpenCode hosted model's route key", () => {
-    const opencode = Model.Ref.make({ id: Model.ID.make("claude-fable-5"), providerID: Provider.ID.opencode })
+  test("replays flat state under an DeepThroat hosted model's route key", () => {
+    const deepthroat = Model.Ref.make({ id: Model.ID.make("claude-fable-5"), providerID: Provider.ID.deepthroat })
     const messages = toLLMMessages(
       [
         SessionMessage.Assistant.make({
-          id: id("assistant-opencode-reasoning"),
+          id: id("assistant-deepthroat-reasoning"),
           type: "assistant",
           agent: build,
-          model: opencode,
+          model: deepthroat,
           content: [
             SessionMessage.AssistantReasoning.make({
               type: "reasoning",
@@ -924,7 +924,7 @@ Earlier work
           time: { created, completed: created },
         }),
       ],
-      opencode,
+      deepthroat,
       "anthropic",
     )
 

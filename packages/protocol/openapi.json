@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "opencode HttpApi",
+    "title": "deepthroat HttpApi",
     "version": "0.0.1",
     "description": "Experimental HttpApi surface for selected instance routes."
   },
@@ -1512,7 +1512,7 @@
             }
           }
         },
-        "description": "Retrieve foreground Session drains currently owned by this OpenCode process. Sessions absent from the result are inactive.",
+        "description": "Retrieve foreground Session drains currently owned by this DeepThroat process. Sessions absent from the result are inactive.",
         "summary": "List active sessions"
       }
     },
@@ -4177,7 +4177,7 @@
             }
           }
         },
-        "description": "Interrupt active execution owned by this OpenCode process. Returns interrupted=true when an active execution was interrupted and false for the idle no-op. When resume=true, execution resumes pending steering input and next-in-line control items (manual compaction, moves) while queued prompts remain parked.",
+        "description": "Interrupt active execution owned by this DeepThroat process. Returns interrupted=true when an active execution was interrupted and false for the idle no-op. When resume=true, execution resumes pending steering input and next-in-line control items (manual compaction, moves) while queued prompts remain parked.",
         "summary": "Interrupt session execution"
       }
     },
@@ -5440,7 +5440,7 @@
             }
           }
         },
-        "description": "List supported voice models, their transports, whether the server has a usable API key for each provider or the connected OpenCode Console hosts the model, and the Console workspace a hosted model bills to.",
+        "description": "List supported voice models, their transports, whether the server has a usable API key for each provider or the connected DeepThroat Console hosts the model, and the Console workspace a hosted model bills to.",
         "summary": "List voice models"
       }
     },
@@ -5502,7 +5502,7 @@
             }
           }
         },
-        "description": "Create a server-brokered voice session using the server's configured provider credentials, or the connected OpenCode Console when it hosts the model, and return the WebRTC SDP answer or WebSocket ephemeral token.",
+        "description": "Create a server-brokered voice session using the server's configured provider credentials, or the connected DeepThroat Console when it hosts the model, and return the WebRTC SDP answer or WebSocket ephemeral token.",
         "summary": "Create voice session",
         "requestBody": {
           "content": {
@@ -5596,7 +5596,7 @@
             }
           }
         },
-        "description": "Replace the backend instructions of a running session the connected OpenCode Console hosts, whose data channel can't change them.",
+        "description": "Replace the backend instructions of a running session the connected DeepThroat Console hosts, whose data channel can't change them.",
         "summary": "Replace voice session instructions",
         "requestBody": {
           "content": {
@@ -7787,7 +7787,7 @@
         "operationId": "experimental.mcp.client.token",
         "parameters": [
           {
-            "name": "x-opencode-ticket",
+            "name": "x-deepthroat-ticket",
             "in": "header",
             "schema": {
               "anyOf": [
@@ -10755,7 +10755,7 @@
             "required": true
           },
           {
-            "name": "x-opencode-ticket",
+            "name": "x-deepthroat-ticket",
             "in": "header",
             "schema": {
               "anyOf": [
@@ -11624,7 +11624,7 @@
             "required": true
           },
           {
-            "name": "x-opencode-ticket",
+            "name": "x-deepthroat-ticket",
             "in": "header",
             "schema": {
               "anyOf": [
@@ -11830,7 +11830,7 @@
             }
           }
         },
-        "description": "Stream persistent PTY output through the OpenCode server.",
+        "description": "Stream persistent PTY output through the DeepThroat server.",
         "summary": "Connect to a persistent PTY",
         "x-websocket": true
       }
@@ -20393,7 +20393,7 @@
         "properties": {
           "interrupted": {
             "type": "boolean",
-            "description": "Whether an active execution owned by this OpenCode process was interrupted."
+            "description": "Whether an active execution owned by this DeepThroat process was interrupted."
           }
         },
         "required": ["interrupted"],

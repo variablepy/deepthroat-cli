@@ -1,5 +1,5 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: 💬 Discord Community
-    url: https://discord.gg/opencode
-    about: For support, troubleshooting, how-to questions, and real-time discussion.
+  - name: DeepThroat account support
+    url: https://cheapai.gay
+    about: Account and billing support

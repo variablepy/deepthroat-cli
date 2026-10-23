@@ -10,7 +10,7 @@ export const PrintLogs = GlobalFlag.Setting("print-logs")({
   ),
 })
 
-declare const OPENCODE_CLI_NAME: string | undefined
+declare const deepthroatcliname: string | undefined
 
 const ServerParams = {
   standalone: Flag.Boolean("standalone").pipe(
@@ -35,13 +35,13 @@ const PermissionParams = {
   ),
 }
 
-const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME : "opencode", {
-  description: "OpenCode command line interface",
+const Root = Spec.make(typeof deepthroatcliname === "string" ? deepthroatcliname : "deepthroat", {
+  description: "DeepThroat coding agent",
   params: {
     ...ServerParams,
     ...PermissionParams,
     directory: Argument.String("directory").pipe(
-      Argument.withDescription("Directory to start OpenCode in"),
+      Argument.withDescription("Directory to start DeepThroat in"),
       Argument.optional,
     ),
     continue: Flag.Boolean("continue").pipe(
@@ -58,7 +58,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
   },
   commands: [
     Spec.make("upgrade", {
-      description: "Upgrade OpenCode to the latest or a specific version",
+      description: "Upgrade DeepThroat to the latest or a specific version",
       aliases: ["update"],
       params: {
         target: Argument.String("target").pipe(
@@ -73,7 +73,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
       },
     }),
     Spec.make("uninstall", {
-      description: "Uninstall OpenCode, keeping session data, configuration, and state",
+      description: "Uninstall DeepThroat, keeping session data, configuration, and state",
       params: {
         dryRun: Flag.Boolean("dry-run").pipe(
           Flag.withDescription("Show what would be removed without removing"),
@@ -192,26 +192,6 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
             ),
             credential: Argument.String("credential").pipe(
               Argument.withDescription("Credential ID or label (opens an account picker when omitted)"),
-              Argument.optional,
-            ),
-          },
-        }),
-        Spec.make("export", {
-          description: "print stored credentials, including secrets, as JSON",
-          params: {
-            ...ServerParams,
-            target: Argument.String("target").pipe(
-              Argument.withDescription("Integration ID or name (exports every integration when omitted)"),
-              Argument.optional,
-            ),
-          },
-        }),
-        Spec.make("import", {
-          description: "import credentials exported by auth export",
-          params: {
-            ...ServerParams,
-            file: Argument.String("file").pipe(
-              Argument.withDescription("JSON file to import (reads stdin when omitted)"),
               Argument.optional,
             ),
           },
@@ -387,7 +367,7 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
       },
     }),
     Spec.make("run", {
-      description: "Run OpenCode with a message",
+      description: "Run DeepThroat with a message",
       params: {
         ...ServerParams,
         message: Argument.String("message").pipe(

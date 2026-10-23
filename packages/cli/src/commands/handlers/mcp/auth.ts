@@ -1,14 +1,14 @@
 import { confirm, intro, log, outro } from "@clack/prompts"
 import { Effect, Option } from "effect"
-import { OpenCode, type IntegrationInfo, type IntegrationOAuthMethod, type McpServer } from "@opencode/client"
+import { deepthroat, type IntegrationInfo, type IntegrationOAuthMethod, type McpServer } from "@deepthroat/client"
 import { Commands } from "../../commands"
 import { Runtime } from "../../../framework/runtime"
-import { Service } from "@opencode/client/effect/service"
+import { Service } from "@deepthroat/client/effect/service"
 import { ServerConnection } from "../../../services/server-connection"
 import { selectIntegration, type IntegrationChoice } from "../../../ui/integration-picker"
 import { handlePromptErrors, prompt, requireInteractive } from "../../../ui/prompt"
 import { answerForm } from "../auth/form"
-import { oauthLogin } from "../auth/login"
+import { oauthlogin } from "../auth/login"
 import { loadIntegrations, request } from "../auth/shared"
 
 const location = { directory: process.cwd() }
@@ -22,14 +22,14 @@ const authenticate = Effect.fn("cli.mcp.auth.run")(function* (name?: string) {
   if (!name) yield* requireInteractive("Pass an MCP server name when running without an interactive terminal")
   intro("Authenticate an MCP server")
   const { endpoint } = yield* ServerConnection.resolve()
-  const client = OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
+  const client = deepthroat.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) })
   const integrations = yield* loadIntegrations(client)
   const servers = yield* request((signal) => client.mcp.list({ location }, { signal }))
   const choices = mcpAuthChoices(servers.data, integrations)
   if (!name && choices.length === 0) {
     log.warn("No OAuth-capable MCP servers configured")
     log.info(
-      `Remote MCP servers support OAuth by default. Add one with \`opencode mcp add\` or in opencode.json:\n${exampleConfig}`,
+      `Remote MCP servers support OAuth by default. Add one with \`deepthroat mcp add\` or in deepthroat.json:\n${exampleConfig}`,
     )
     outro("Done")
     return
@@ -65,7 +65,7 @@ const authenticate = Effect.fn("cli.mcp.auth.run")(function* (name?: string) {
   // keeps the active one's label, and the old ones are only removed once it is stored, so a failed
   // attempt keeps them.
   const previous = integration.connections.filter((connection) => connection.type === "credential")
-  yield* oauthLogin(client, integration, method, yield* answerForm(method.form), previous[0]?.label)
+  yield* oauthlogin(client, integration, method, yield* answerForm(method.form), previous[0]?.label)
   yield* Effect.forEach(
     previous,
     (connection) => request((signal) => client.credential.remove({ credentialID: connection.id }, { signal })),

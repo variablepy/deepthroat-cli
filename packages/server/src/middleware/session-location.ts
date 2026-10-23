@@ -1,15 +1,15 @@
-import { Instance } from "@opencode/core/instance/service"
-import { Session } from "@opencode/core/session"
+import { Instance } from "@deepthroat/core/instance/service"
+import { Session } from "@deepthroat/core/session"
 import { Effect, Layer } from "effect"
 import { HttpRouter } from "effect/http"
 import { HttpApiMiddleware } from "effect/http-api"
-import { LocationNotFoundError, InvalidRequestError, SessionNotFoundError } from "@opencode/protocol/errors"
+import { LocationNotFoundError, InvalidRequestError, SessionNotFoundError } from "@deepthroat/protocol/errors"
 import { locationErrors, sessionInfo, type LocationServices } from "../location"
 
 export class SessionLocationMiddleware extends HttpApiMiddleware.Service<
   SessionLocationMiddleware,
   { provides: LocationServices }
->()("@opencode/HttpApiSessionLocation", {
+>()("@deepthroat/HttpApiSessionLocation", {
   error: [InvalidRequestError, SessionNotFoundError, LocationNotFoundError],
 }) {}
 

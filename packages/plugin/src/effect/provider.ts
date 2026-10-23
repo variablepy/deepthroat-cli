@@ -1,7 +1,7 @@
-import type { ProviderApi } from "@opencode/client/effect/api"
-import type { Model } from "@opencode/schema/model"
-import type { Provider } from "@opencode/schema/provider"
-import type { ConnectionInfo } from "@opencode/client"
+import type { ProviderApi } from "@deepthroat/client/effect/api"
+import type { Model } from "@deepthroat/schema/model"
+import type { Provider } from "@deepthroat/schema/provider"
+import type { ConnectionInfo } from "@deepthroat/client"
 import type { Effect, Types } from "effect"
 import type { Transform } from "./registration.js"
 

@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test"
-import type { IntegrationInfo } from "@opencode/client"
+import type { IntegrationInfo } from "@deepthroat/client"
 import {
   connectionSummary,
-  connectMethods,
+  connectmethods,
   credentialConnections,
-  integrationOptions,
+  integrationoptions,
 } from "../../../../src/component/dialog-integration"
 
 const integration = (value: Partial<IntegrationInfo> & Pick<IntegrationInfo, "id" | "name">): IntegrationInfo => ({
@@ -13,48 +13,35 @@ const integration = (value: Partial<IntegrationInfo> & Pick<IntegrationInfo, "id
   ...value,
 })
 
-describe("integrationOptions", () => {
-  test("keeps popular integrations first and sorts the rest alphabetically", () => {
-    expect(
-      integrationOptions([
-        integration({ id: "mistral", name: "Mistral" }),
-        integration({ id: "openai", name: "OpenAI" }),
-        integration({ id: "custom-z", name: "Zebra" }),
-        integration({ id: "anthropic", name: "Anthropic" }),
-        integration({ id: "opencode", name: "OpenCode Zen" }),
-        integration({ id: "opencode-go", name: "OpenCode Go" }),
-      ]).map((item) => item.id),
-    ).toEqual(["opencode-go", "opencode", "openai", "anthropic", "mistral", "custom-z"])
-  })
-
-  test("keeps MCP integrations above popular integrations without relying on their IDs", () => {
-    expect(
-      integrationOptions([
-        integration({ id: "openai", name: "OpenAI" }),
-        integration({ id: "linear", name: "Linear", metadata: { source: "mcp" } }),
-        integration({ id: "github", name: "GitHub", metadata: { source: "mcp" } }),
-        integration({ id: "opencode", name: "OpenCode Zen" }),
-        integration({ id: "opencode-go", name: "OpenCode Go" }),
-      ]).map((item) => item.id),
-    ).toEqual(["github", "linear", "opencode-go", "opencode", "openai"])
+describe("integrationoptions", () => {
+  test("shows DeepThroat and MCP tools without external inference providers", () => {
+    expect(integrationoptions([
+      integration({ id: "openai", name: "OpenAI" }),
+      integration({ id: "custom", name: "Custom" }),
+      integration({ id: "linear", name: "Linear", metadata: { source: "mcp" } }),
+      integration({ id: "deepthroat", name: "DeepThroat" }),
+      integration({ id: "github", name: "GitHub", metadata: { source: "mcp" } }),
+    ]).map((item) => item.id)).toEqual(["deepthroat", "github", "linear"])
   })
 })
 
-describe("connectMethods", () => {
-  test("offers key and OAuth methods but not environment discovery", () => {
-    expect(
-      connectMethods(
-        integration({
-          id: "example",
-          name: "Example",
-          methods: [
-            { type: "env", names: ["EXAMPLE_KEY"] },
-            { type: "key", label: "API key" },
-            { type: "oauth", id: "account", label: "Account" },
-          ],
-        }),
-      ).map((method) => method.type),
-    ).toEqual(["oauth", "key"])
+describe("connectmethods", () => {
+  test("DeepThroat permits only website sign-in", () => {
+    expect(connectmethods(integration({ id: "deepthroat", name: "DeepThroat", methods: [
+      { type: "key", label: "API key" },
+      { type: "oauth", id: "other", label: "Other" },
+      { type: "oauth", id: "deepthroat-website", label: "Continue with website" },
+    ] })).map((method) => method.type === "key" ? "key" : method.id)).toEqual(["deepthroat-website"])
+  })
+  test("MCP authentication remains available", () => {
+    expect(connectmethods(integration({ id: "github", name: "GitHub", metadata: { source: "mcp" }, methods: [
+      { type: "env", names: ["MCP_TOKEN"] },
+      { type: "key", label: "Access token" },
+      { type: "oauth", id: "account", label: "Account" },
+    ] })).map((method) => method.type)).toEqual(["oauth", "key"])
+  })
+  test("unregistered inference integrations cannot offer manual keys", () => {
+    expect(connectmethods(integration({ id: "other", name: "Other", methods: [{ type: "key" }] }))).toEqual([])
   })
 })
 

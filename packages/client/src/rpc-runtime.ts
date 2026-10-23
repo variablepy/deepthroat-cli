@@ -1,11 +1,11 @@
 export * as RpcRuntime from "./rpc-runtime.js"
 
-import type { Rpc } from "@opencode/schema/rpc"
-import type { OpenCodeEvent } from "@opencode/protocol/groups/event"
-import { RpcError, RpcInternalError } from "@opencode/protocol/errors"
+import type { Rpc } from "@deepthroat/schema/rpc"
+import type { deepthroatevent } from "@deepthroat/protocol/groups/event"
+import { RpcError, RpcInternalError } from "@deepthroat/protocol/errors"
 import { Effect, Schema } from "effect"
 
-type RpcEvent = Extract<OpenCodeEvent, { type: `rpc.${string}` }>
+type RpcEvent = Extract<deepthroatevent, { type: `rpc.${string}` }>
 
 export function read(schema: Rpc.Method["output"], value: unknown) {
   // Standard Schema results have already been parsed by the server.

@@ -1,14 +1,14 @@
 import { expect, test } from "bun:test"
-import { ModalModels } from "@opencode/core/modal/models"
-import { Model } from "@opencode/core/model"
-import { Provider } from "@opencode/core/provider"
-import { ProviderPlugins } from "@opencode/core/plugin/provider"
-import { Money } from "@opencode/schema/money"
+import { ModalModels } from "@deepthroat/core/modal/models"
+import { Model } from "@deepthroat/core/model"
+import { Provider } from "@deepthroat/core/provider"
+import { providerplugins } from "@deepthroat/core/plugin/provider"
+import { Money } from "@deepthroat/schema/money"
 
 const providerID = Provider.ID.make("modal")
 
-test("modal plugin is registered", () => {
-  expect(ProviderPlugins.map((item) => item.id)).toContain("opencode.provider.modal")
+test("external modal inference plugin is not registered", () => {
+  expect(providerplugins.map((item) => item.id)).not.toContain("deepthroat.provider.modal")
 })
 
 function template(id: string, overrides: Partial<Model.Info> = {}) {
@@ -65,7 +65,7 @@ test("maps live Modal models onto catalog templates", async () => {
     expect(model?.family).toBe(Model.Family.make("catalog-family"))
     expect(model?.providerID).toBe(providerID)
     expect(model?.modelID).toBe(Model.ID.make("live-model"))
-    expect(model?.package).toBe("@opencode/ai/providers/openai-compatible")
+    expect(model?.package).toBe("@deepthroat/ai/providers/openai-compatible")
     expect(model?.settings).toMatchObject({ baseURL: `${server.url.origin}/v1` })
     expect(model?.compatibility).toMatchObject({ reasoningField: "reasoning_content" })
     expect(model?.capabilities).toMatchObject({ tools: true, input: ["text", "image"], output: ["text"] })

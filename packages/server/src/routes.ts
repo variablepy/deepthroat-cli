@@ -1,38 +1,38 @@
-import { Database } from "@opencode/core/database/database"
-import { V1Migration } from "@opencode/core/database/v1-migration"
-import { App } from "@opencode/core/app"
-import { LayerNode } from "@opencode/util/effect/layer-node"
-import { Node } from "@opencode/util/effect/app-node"
-import { httpClient } from "@opencode/util/effect/app-node-platform"
-import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
-import { Bus } from "@opencode/core/bus"
-import { EventLogger } from "@opencode/core/event-logger"
-import { FileSystemSearch } from "@opencode/core/filesystem/search"
-import { Credential } from "@opencode/core/credential"
-import { Config } from "@opencode/core/config"
-import { PermissionSaved } from "@opencode/core/permission/saved"
-import { PtyTicket } from "@opencode/core/pty/ticket"
-import { PersistentPty } from "@opencode/core/persistent-pty"
-import { Project } from "@opencode/core/project"
-import { Worktree } from "@opencode/core/worktree"
-import { Session } from "@opencode/core/session"
-import { Instance } from "@opencode/core/instance/service"
-import { SessionTransfer } from "@opencode/core/session/transfer"
-import { ShellSelect } from "@opencode/core/shell/select"
-import { Job } from "@opencode/core/job"
-import { Mcp } from "@opencode/core/mcp/index"
-import { Global } from "@opencode/util/global"
-import { FSUtil } from "@opencode/util/fs-util"
-import { InstructionDiscovery } from "@opencode/core/instruction-discovery"
-import { LocationServiceMap } from "@opencode/core/location-service-map"
-import { LocationActivity } from "@opencode/core/location-activity"
-import { ModelsDev } from "@opencode/core/models-dev"
-import { SessionRestart } from "@opencode/core/session/execution/restart"
-import { PluginUpdate } from "@opencode/core/plugin/update"
-import { SdkPlugins } from "@opencode/core/plugin/sdk"
-import { WellKnown } from "@opencode/core/wellknown"
-import { Workspace } from "@opencode/core/workspace"
-import { Watcher } from "@opencode/core/filesystem/watcher"
+import { Database } from "@deepthroat/core/database/database"
+import { V1Migration } from "@deepthroat/core/database/v1-migration"
+import { App } from "@deepthroat/core/app"
+import { LayerNode } from "@deepthroat/util/effect/layer-node"
+import { Node } from "@deepthroat/util/effect/app-node"
+import { httpClient } from "@deepthroat/util/effect/app-node-platform"
+import { AppNodeBuilder } from "@deepthroat/core/effect/app-node-builder"
+import { Bus } from "@deepthroat/core/bus"
+import { EventLogger } from "@deepthroat/core/event-logger"
+import { FileSystemSearch } from "@deepthroat/core/filesystem/search"
+import { Credential } from "@deepthroat/core/credential"
+import { Config } from "@deepthroat/core/config"
+import { PermissionSaved } from "@deepthroat/core/permission/saved"
+import { PtyTicket } from "@deepthroat/core/pty/ticket"
+import { PersistentPty } from "@deepthroat/core/persistent-pty"
+import { Project } from "@deepthroat/core/project"
+import { Worktree } from "@deepthroat/core/worktree"
+import { Session } from "@deepthroat/core/session"
+import { Instance } from "@deepthroat/core/instance/service"
+import { SessionTransfer } from "@deepthroat/core/session/transfer"
+import { ShellSelect } from "@deepthroat/core/shell/select"
+import { Job } from "@deepthroat/core/job"
+import { Mcp } from "@deepthroat/core/mcp/index"
+import { Global } from "@deepthroat/util/global"
+import { FSUtil } from "@deepthroat/util/fs-util"
+import { InstructionDiscovery } from "@deepthroat/core/instruction-discovery"
+import { LocationServiceMap } from "@deepthroat/core/location-service-map"
+import { LocationActivity } from "@deepthroat/core/location-activity"
+import { ModelsDev } from "@deepthroat/core/models-dev"
+import { SessionRestart } from "@deepthroat/core/session/execution/restart"
+import { PluginUpdate } from "@deepthroat/core/plugin/update"
+import { SdkPlugins } from "@deepthroat/core/plugin/sdk"
+import { WellKnown } from "@deepthroat/core/wellknown"
+import { Workspace } from "@deepthroat/core/workspace"
+import { Watcher } from "@deepthroat/core/filesystem/watcher"
 import { HttpRouter } from "effect/http"
 import { HttpApiBuilder } from "effect/http-api"
 import { Context, Effect, Layer, Option } from "effect"
@@ -135,7 +135,7 @@ function makeRoutes<AuthError, AuthServices>(
     Mcp.node.replace(
       Mcp.configured({
         clientInfo: {
-          name: "opencode",
+          name: "deepthroat",
           version: options.app?.version ?? "unknown",
         },
       }),
@@ -153,7 +153,7 @@ function makeRoutes<AuthError, AuthServices>(
   const serviceLayer = options.simulation
     ? Layer.unwrap(
         Effect.gen(function* () {
-          const { simulationReplacements } = yield* Effect.promise(() => import("@opencode/simulation/backend"))
+          const { simulationReplacements } = yield* Effect.promise(() => import("@deepthroat/simulation/backend"))
           const simulation = yield* simulationReplacements({ version: App.make(options.app).version })
           return build([...overrides, ...simulation])
         }),

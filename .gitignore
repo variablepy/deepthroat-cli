@@ -22,7 +22,7 @@ ts-dist
 /result
 refs
 Session.vim
-/opencode.json
+/deepthroat.json
 a.out
 target
 .scripts
@@ -30,10 +30,20 @@ target
 .direnv/
 
 # Local dev files
-opencode-dev
+/deepthroat-dev
 UPCOMING_CHANGELOG.md
 RELEASE_REVIEW.md
 logs/
 *.bun-build
 tsconfig.tsbuildinfo
 /artifacts/
+
+.tools/
+*.local.json
+.env
+.env.*
+
+*.lnk
+
+.bun-cache/
+.cache/

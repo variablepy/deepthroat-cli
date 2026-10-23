@@ -1,14 +1,14 @@
-import { Plugin } from "@opencode/plugin/tui"
+import { Plugin } from "@deepthroat/plugin/tui"
 import { createMermaidCodeBlockRenderer } from "./markdown.js"
-import { resolveOpenCodeDiagramPalette } from "./palette.js"
+import { resolvedeepthroatdiagrampalette } from "./palette.js"
 
 export default Plugin.define({
-  id: "opencode.merman",
+  id: "deepthroat.merman",
   setup(context) {
     context.markdown.registerCodeBlockRenderer(
       "mermaid",
       createMermaidCodeBlockRenderer(context.renderer, () => ({
-        colors: resolveOpenCodeDiagramPalette(context.theme, context.themeMode),
+        colors: resolvedeepthroatdiagrampalette(context.theme, context.themeMode),
       })),
     )
   },

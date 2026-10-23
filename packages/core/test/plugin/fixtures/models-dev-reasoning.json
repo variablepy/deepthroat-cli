@@ -113,10 +113,10 @@
       }
     }
   },
-  "opencode-go": {
-    "id": "opencode-go",
-    "name": "OpenCode Go",
-    "env": ["OPENCODE_API_KEY"],
+  "deepthroat-go": {
+    "id": "deepthroat-go",
+    "name": "DeepThroat Go",
+    "env": ["DEEPTHROAT_API_KEY"],
     "npm": "@ai-sdk/openai-compatible",
     "models": {
       "minimax-m3": {

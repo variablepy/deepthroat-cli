@@ -1,4 +1,4 @@
-import type { ModelInfo } from "@opencode/client"
+import type { ModelInfo } from "@deepthroat/client"
 import { createMemo, createSignal, Show } from "solid-js"
 import { useLocal } from "../context/local"
 import { DialogSelect } from "../ui/dialog-select"
@@ -72,9 +72,9 @@ function DialogConnectedModels(props: {
     if (newDesigns()) return favorite ? <FavoriteMarker /> : undefined
     return isFreeModel(model) ? "Free" : undefined
   }
-  // OpenCode's own free models get their own group at the end of the list instead of joining "OpenCode".
+  // DeepThroat's own free models get their own group at the end of the list instead of joining "DeepThroat".
   const freeGroup = (model: ModelInfo) =>
-    newDesigns() && !props.providerID && model.providerID === "opencode" && isFreeModel(model)
+    newDesigns() && !props.providerID && model.providerID === "deepthroat" && isFreeModel(model)
 
   const connected = useConnected()
   const providers = createMemo(

@@ -2,15 +2,15 @@ import type {
   EventSubscribeOutput,
   JsonValue,
   LocationRef,
-  OpenCodeClient,
+  DeepThroatClient,
   SessionMessageAssistantTool,
   SessionMessageInfo,
   ToolContent,
-} from "@opencode/client/promise"
-import { SessionMessage } from "@opencode/schema/session-message"
+} from "@deepthroat/client/promise"
+import { SessionMessage } from "@deepthroat/schema/session-message"
 import { EOL } from "node:os"
 import { readFile } from "node:fs/promises"
-import { nonEmptyToolContent, toolOutputText, type MiniToolPart } from "@opencode/tui/mini/tool"
+import { nonEmptyToolContent, toolOutputText, type MiniToolPart } from "@deepthroat/tui/mini/tool"
 import { UI } from "./ui"
 
 type Model = {
@@ -25,7 +25,7 @@ type File = {
 }
 
 type Input = {
-  client: OpenCodeClient
+  client: DeepThroatClient
   sessionID: string
   location: LocationRef
   message: string
@@ -795,7 +795,7 @@ function formRequestOptions(location: LocationRef | undefined): [] | [{ headers:
   return [
     {
       headers: {
-        "x-opencode-directory": encodeURIComponent(location.directory),
+        "x-deepthroat-directory": encodeURIComponent(location.directory),
       },
     },
   ]

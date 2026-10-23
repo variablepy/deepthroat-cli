@@ -1,19 +1,19 @@
 export * as Provider from "./provider.js"
 
 import { Context, Effect, Layer, Option, Schema, Stream, Struct } from "effect"
-import { Provider } from "@opencode/schema/provider"
-import { Model } from "@opencode/schema/model"
-import { makeLocationNode } from "@opencode/util/effect/app-node"
-import { HttpTimeout, type ProviderPackageDefinition } from "@opencode/ai"
-import { isRecord } from "@opencode/ai/utils/record"
-import { Npm } from "@opencode/util/npm"
+import { Provider } from "@deepthroat/schema/provider"
+import { Model } from "@deepthroat/schema/model"
+import { makeLocationNode } from "@deepthroat/util/effect/app-node"
+import { HttpTimeout, type ProviderPackageDefinition } from "@deepthroat/ai"
+import { isRecord } from "@deepthroat/ai/utils/record"
+import { Npm } from "@deepthroat/util/npm"
 import type { DeepMutable } from "./schema.js"
-import { importModule, resolveModule } from "@opencode/util/runtime-import"
+import { importModule } from "@deepthroat/util/runtime-import"
 import { Bus } from "./bus.js"
 import { Integration } from "./integration.js"
 import { State } from "./state.js"
 import { IntegrationConnection } from "./integration/connection.js"
-import { Credential } from "@opencode/schema/credential"
+import { Credential } from "@deepthroat/schema/credential"
 import { Location } from "./location.js"
 import { freeze } from "immer"
 import { AISDKNative } from "./aisdk-native.js"
@@ -28,8 +28,6 @@ export function packageName(value: string): string
 export function packageName(value: undefined): undefined
 export function packageName(value: string | undefined): string | undefined
 export function packageName(value: string | undefined) {
-  // Native provider entrypoints can persist in user configuration across the npm scope migration.
-  if (value?.startsWith("@opencode-ai/ai/")) return value.replace("@opencode-ai/", "@opencode/")
   if (value === undefined || !isAISDK(value)) return value
   return value.slice(AISDK_PREFIX.length)
 }
@@ -46,144 +44,20 @@ export type ProviderPackage = ProviderPackageDefinition
 
 const packages = new Map<string, Promise<unknown>>()
 const builtins = new Map<string, () => Promise<unknown>>([
-  ["@opencode/ai/providers/alibaba", () => import("@opencode/ai/providers/alibaba")],
-  ["@opencode/ai/providers/alibaba/chat", () => import("@opencode/ai/providers/alibaba/chat")],
-  ["@opencode/ai/providers/alibaba/messages", () => import("@opencode/ai/providers/alibaba/messages")],
-  ["@opencode/ai/providers/alibaba/responses", () => import("@opencode/ai/providers/alibaba/responses")],
-  ["@opencode/ai/providers/amazon-bedrock", () => import("@opencode/ai/providers/amazon-bedrock")],
-  ["@opencode/ai/providers/amazon-bedrock/mantle", () => import("@opencode/ai/providers/amazon-bedrock/mantle")],
-  [
-    "@opencode/ai/providers/amazon-bedrock/mantle/chat",
-    () => import("@opencode/ai/providers/amazon-bedrock/mantle/chat"),
-  ],
-  [
-    "@opencode/ai/providers/amazon-bedrock/mantle/messages",
-    () => import("@opencode/ai/providers/amazon-bedrock/mantle/messages"),
-  ],
-  [
-    "@opencode/ai/providers/amazon-bedrock/mantle/responses",
-    () => import("@opencode/ai/providers/amazon-bedrock/mantle/responses"),
-  ],
-  ["@opencode/ai/providers/amazon-bedrock-mantle", () => import("@opencode/ai/providers/amazon-bedrock-mantle")],
-  ["@opencode/ai/providers/anthropic", () => import("@opencode/ai/providers/anthropic")],
-  ["@opencode/ai/providers/anthropic-compatible", () => import("@opencode/ai/providers/anthropic-compatible")],
-  ["@opencode/ai/providers/azure", () => import("@opencode/ai/providers/azure")],
-  ["@opencode/ai/providers/azure/chat", () => import("@opencode/ai/providers/azure/chat")],
-  ["@opencode/ai/providers/azure/responses", () => import("@opencode/ai/providers/azure/responses")],
-  ["@opencode/ai/providers/baseten", () => import("@opencode/ai/providers/baseten")],
-  ["@opencode/ai/providers/cerebras", () => import("@opencode/ai/providers/cerebras")],
-  ["@opencode/ai/providers/cloudflare-ai-gateway", () => import("@opencode/ai/providers/cloudflare-ai-gateway")],
-  ["@opencode/ai/providers/cloudflare-workers-ai", () => import("@opencode/ai/providers/cloudflare-workers-ai")],
-  ["@opencode/ai/providers/cohere", () => import("@opencode/ai/providers/cohere")],
-  ["@opencode/ai/providers/cohere/chat", () => import("@opencode/ai/providers/cohere/chat")],
-  ["@opencode/ai/providers/deepinfra", () => import("@opencode/ai/providers/deepinfra")],
-  ["@opencode/ai/providers/deepseek", () => import("@opencode/ai/providers/deepseek")],
-  ["@opencode/ai/providers/digitalocean", () => import("@opencode/ai/providers/digitalocean")],
-  ["@opencode/ai/providers/fireworks", () => import("@opencode/ai/providers/fireworks")],
-  ["@opencode/ai/providers/google", () => import("@opencode/ai/providers/google")],
-  ["@opencode/ai/providers/google/interactions", () => import("@opencode/ai/providers/google/interactions")],
-  ["@opencode/ai/providers/google-vertex", () => import("@opencode/ai/providers/google-vertex")],
-  ["@opencode/ai/providers/google-vertex/chat", () => import("@opencode/ai/providers/google-vertex/chat")],
-  ["@opencode/ai/providers/google-vertex/gemini", () => import("@opencode/ai/providers/google-vertex/gemini")],
-  [
-    "@opencode/ai/providers/google-vertex/interactions",
-    () => import("@opencode/ai/providers/google-vertex/interactions"),
-  ],
-  ["@opencode/ai/providers/google-vertex/messages", () => import("@opencode/ai/providers/google-vertex/messages")],
-  ["@opencode/ai/providers/google-vertex/mistral", () => import("@opencode/ai/providers/google-vertex/mistral")],
-  ["@opencode/ai/providers/google-vertex/responses", () => import("@opencode/ai/providers/google-vertex/responses")],
-  ["@opencode/ai/providers/google-vertex-chat", () => import("@opencode/ai/providers/google-vertex-chat")],
-  [
-    "@opencode/ai/providers/google-vertex-interactions",
-    () => import("@opencode/ai/providers/google-vertex-interactions"),
-  ],
-  ["@opencode/ai/providers/google-vertex-messages", () => import("@opencode/ai/providers/google-vertex-messages")],
-  ["@opencode/ai/providers/google-vertex-mistral", () => import("@opencode/ai/providers/google-vertex-mistral")],
-  ["@opencode/ai/providers/google-vertex-responses", () => import("@opencode/ai/providers/google-vertex-responses")],
-  ["@opencode/ai/providers/groq", () => import("@opencode/ai/providers/groq")],
-  ["@opencode/ai/providers/meta", () => import("@opencode/ai/providers/meta")],
-  ["@opencode/ai/providers/meta/chat", () => import("@opencode/ai/providers/meta/chat")],
-  ["@opencode/ai/providers/meta/messages", () => import("@opencode/ai/providers/meta/messages")],
-  ["@opencode/ai/providers/meta/responses", () => import("@opencode/ai/providers/meta/responses")],
-  ["@opencode/ai/providers/minimax", () => import("@opencode/ai/providers/minimax")],
-  ["@opencode/ai/providers/minimax/chat", () => import("@opencode/ai/providers/minimax/chat")],
-  ["@opencode/ai/providers/minimax/messages", () => import("@opencode/ai/providers/minimax/messages")],
-  ["@opencode/ai/providers/minimax/responses", () => import("@opencode/ai/providers/minimax/responses")],
-  ["@opencode/ai/providers/mistral", () => import("@opencode/ai/providers/mistral")],
-  ["@opencode/ai/providers/moonshot", () => import("@opencode/ai/providers/moonshot")],
-  ["@opencode/ai/providers/moonshot/chat", () => import("@opencode/ai/providers/moonshot/chat")],
-  ["@opencode/ai/providers/moonshot/messages", () => import("@opencode/ai/providers/moonshot/messages")],
-  ["@opencode/ai/providers/moonshot/responses", () => import("@opencode/ai/providers/moonshot/responses")],
-  ["@opencode/ai/providers/openai", () => import("@opencode/ai/providers/openai")],
-  ["@opencode/ai/providers/openai/chat", () => import("@opencode/ai/providers/openai/chat")],
-  ["@opencode/ai/providers/openai/responses", () => import("@opencode/ai/providers/openai/responses")],
-  ["@opencode/ai/providers/openai-compatible", () => import("@opencode/ai/providers/openai-compatible")],
-  [
-    "@opencode/ai/providers/openai-compatible/responses",
-    () => import("@opencode/ai/providers/openai-compatible/responses"),
-  ],
-  [
-    "@opencode/ai/providers/openai-compatible-responses",
-    () => import("@opencode/ai/providers/openai-compatible-responses"),
-  ],
-  ["@opencode/ai/providers/openrouter", () => import("@opencode/ai/providers/openrouter")],
-  ["@opencode/ai/providers/togetherai", () => import("@opencode/ai/providers/togetherai")],
-  ["@opencode/ai/providers/venice", () => import("@opencode/ai/providers/venice")],
-  ["@opencode/ai/providers/vercel-ai-gateway", () => import("@opencode/ai/providers/vercel-ai-gateway")],
-  ["@opencode/ai/providers/vercel-ai-gateway/chat", () => import("@opencode/ai/providers/vercel-ai-gateway/chat")],
-  [
-    "@opencode/ai/providers/vercel-ai-gateway/messages",
-    () => import("@opencode/ai/providers/vercel-ai-gateway/messages"),
-  ],
-  [
-    "@opencode/ai/providers/vercel-ai-gateway/responses",
-    () => import("@opencode/ai/providers/vercel-ai-gateway/responses"),
-  ],
-  ["@opencode/ai/providers/xai", () => import("@opencode/ai/providers/xai")],
-  ["@opencode/ai/providers/zai", () => import("@opencode/ai/providers/zai")],
-  ["@opencode/ai/providers/zai/chat", () => import("@opencode/ai/providers/zai/chat")],
-  ["@opencode/ai/providers/zai-coding-plan", () => import("@opencode/ai/providers/zai-coding-plan")],
-  ["@opencode/ai/providers/zai-coding-plan/chat", () => import("@opencode/ai/providers/zai-coding-plan/chat")],
-  ["@opencode/ai/providers/zai-coding-plan/messages", () => import("@opencode/ai/providers/zai-coding-plan/messages")],
-  [
-    "@opencode/ai/providers/zai-coding-plan/responses",
-    () => import("@opencode/ai/providers/zai-coding-plan/responses"),
-  ],
+  ["@deepthroat/ai/providers/deepthroat", () => import("@deepthroat/ai/providers/deepthroat")],
 ])
 
-/** Native `@opencode/ai/providers/*` entrypoints bundled with Core and loadable by name from config. */
+/** Native `@deepthroat/ai/providers/*` entrypoints bundled with Core and loadable by name from config. */
 export const builtinPackages: ReadonlySet<string> = new Set(builtins.keys())
 
 export const loadPackage = Effect.fn("Provider.loadPackage")(function* (input: string, npm?: Npm.Interface) {
   const specifier = packageName(input)
   const builtin = builtins.get(specifier)
   if (builtin) return yield* importPackage(specifier, specifier, builtin)
-  const resolved = yield* Effect.sync(() => {
-    if (specifier.startsWith("file://") || specifier.startsWith("@opencode/ai/")) return specifier
-    try {
-      return import.meta.resolve(specifier)
-    } catch {
-      return undefined
-    }
-  })
-  if (resolved) return yield* importPackage(specifier, resolved)
-  if (!npm) {
-    return yield* new LoadError({
-      package: specifier,
-      cause: new Error(`Provider package ${specifier} is not installed`),
-    })
-  }
-  const parts = specifier.split("/")
-  const root = specifier.startsWith("@") ? parts.slice(0, 2).join("/") : (parts[0] ?? specifier)
-  const installed = yield* npm.add(root).pipe(Effect.mapError((cause) => new LoadError({ package: specifier, cause })))
-  const entrypoint = yield* Effect.try({
-    try: () => resolveModule(specifier, installed.directory),
-    catch: (cause) => new LoadError({ package: specifier, cause }),
-  })
-  return yield* importPackage(specifier, entrypoint)
+  return yield* new LoadError({ package: specifier, cause: new Error("DeepThroat CLI does not support external inference providers or BYOK.") })
 })
 
-/** opencode settings consumed in Core; native packages never receive them. */
+/** deepthroat settings consumed in Core; native packages never receive them. */
 const CORE_KEYS = ["chunkTimeout", "compaction", "encoding", "fetch", "headerTimeout", "timeout", "transport"] as const
 const PROVIDER_ONLY_KEYS = ["chunkTimeout", "headerTimeout", "timeout", "transport"] as const
 
@@ -285,7 +159,7 @@ export type Info = Provider.Info
 
 export type MutableInfo = DeepMutable<Info>
 
-export { Event } from "@opencode/schema/provider"
+export { Event } from "@deepthroat/schema/provider"
 
 /** Provider metadata owns its drafts; model definitions remain immutable inputs. */
 export type Definition = {
@@ -325,7 +199,7 @@ export interface Interface extends State.Transformable<Editor> {
   readonly snapshot: () => Effect.Effect<Snapshot>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Provider") {}
+export class Service extends Context.Service<Service, Interface>()("@deepthroat/Provider") {}
 
 // Every location references the same index for a shared immutable definition array.
 const definitions = new WeakMap<readonly Model.Info[], Map<ID, ReadonlyMap<Model.ID, Model.Info>>>()
@@ -455,7 +329,7 @@ const layer = Layer.effect(
         if (revision !== integrations.revision() || records !== state.get()) continue
         const byID = new Map(connections.map((integration) => [integration.id, integration]))
         const available = Array.from(records.values()).filter((record) => {
-          if (record.provider.activation === "disabled") return false
+          if (record.provider.id !== "deepthroat" || record.provider.activation === "disabled") return false
           const integration = byID.get(record.provider.integrationID ?? Integration.ID.make(record.provider.id))
           // Never combine the previous account's discovered endpoints/models with a new connection.
           if (

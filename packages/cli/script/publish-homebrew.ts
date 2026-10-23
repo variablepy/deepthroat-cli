@@ -1,26 +1,26 @@
 #!/usr/bin/env bun
-import { Script } from "@opencode/script"
+import { script } from "@deepthroat/script"
 import { $ } from "bun"
 import { mkdir, rm } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { UpdateArtifact } from "../../../script/update-artifact"
 
-if (Script.channel !== "beta" && Script.channel !== "latest") {
+if (script.channel !== "beta" && script.channel !== "latest") {
   throw new Error("Homebrew publishing requires the beta or latest channel")
 }
 const valid =
-  Script.channel === "beta"
-    ? /^\d+\.\d+\.\d+-beta[.-]\d+(?:\.\d+)?$/.test(Script.version)
-    : /^\d+\.\d+\.\d+$/.test(Script.version)
-if (!valid) throw new Error(`Expected a ${Script.channel} release version`)
+  script.channel === "beta"
+    ? /^\d+\.\d+\.\d+-beta[.-]\d+(?:\.\d+)?$/.test(script.version)
+    : /^\d+\.\d+\.\d+$/.test(script.version)
+if (!valid) throw new Error(`Expected a ${script.channel} release version`)
 
 const dir = fileURLToPath(new URL("..", import.meta.url))
-const root = path.resolve(process.env.OPENCODE_CLI_DIST ?? path.join(dir, "dist"))
+const root = path.resolve(process.env.DEEPTHROAT_CLI_DIST ?? path.join(dir, "dist"))
 const outdir = path.join(root, "homebrew-tap")
 const dryRun = process.argv.includes("--dry-run")
-const name = Script.channel === "beta" ? "opencode-beta" : "opencode-v2"
-const formulaClass = Script.channel === "beta" ? "OpencodeBeta" : "OpencodeV2"
+const name = script.channel === "beta" ? "deepthroat-beta" : "deepthroat-v2"
+const formulaClass = script.channel === "beta" ? "DeepthroatBeta" : "DeepthroatV2"
 
 const targets = await Promise.all(
   [
@@ -29,14 +29,14 @@ const targets = await Promise.all(
     { name: "linux-arm64", archive: "tar.gz" },
     { name: "linux-x64-baseline", archive: "tar.gz" },
   ].map(async (target) => {
-    const filename = `opencode-${target.name}.${target.archive}`
+    const filename = `deepthroat-${target.name}.${target.archive}`
     const file = Bun.file(path.join(root, filename))
     if (!(await file.exists()) || !file.size) throw new Error(`Missing Homebrew archive: ${filename}`)
     const sha256 = new Bun.CryptoHasher("sha256")
     for await (const chunk of file.stream()) sha256.update(chunk)
     return {
       ...target,
-      url: `https://opencode.ai/files/bin/${encodeURIComponent(Script.version)}/${filename}`,
+      url: `https://cheapai.gay/files/bin/${encodeURIComponent(script.version)}/${filename}`,
       sha256: sha256.digest("hex"),
     }
   }),
@@ -68,13 +68,13 @@ await Bun.write(
     "# frozen_string_literal: true",
     "",
     `class ${formulaClass} < Formula`,
-    `  desc "OpenCode V2${Script.channel === "beta" ? " beta" : ""} - the AI coding agent for the terminal"`,
-    '  homepage "https://github.com/anomalyco/opencode"',
-    `  version "${Script.version}"`,
+    `  desc "DeepThroat V2${script.channel === "beta" ? " beta" : ""} - the AI coding agent for the terminal"`,
+    '  homepage "https://github.com/variablepy/deepthroat-cli"',
+    `  version "${script.version}"`,
     '  license "MIT"',
     "",
     '  depends_on "ripgrep"',
-    '  conflicts_with "opencode", because: "both install an opencode binary"',
+    '  conflicts_with "deepthroat", because: "both install an deepthroat binary"',
     "",
     "  on_macos do",
     "    if Hardware::CPU.arm?",
@@ -97,24 +97,24 @@ await Bun.write(
     "  end",
     "",
     "  def install",
-    '    bin.install "opencode"',
+    '    bin.install "deepthroat"',
     "  end",
     "end",
     "",
   ].join("\n"),
 )
-console.log(`Prepared ${name} ${Script.version} in ${outdir}`)
+console.log(`Prepared ${name} ${script.version} in ${outdir}`)
 if (dryRun) process.exit(0)
 
 await $`git add ${name + ".rb"}`.cwd(outdir)
 if ((await $`git diff --cached --quiet`.cwd(outdir).nothrow()).exitCode !== 0) {
-  await $`git commit -m ${`chore: update ${name} to ${Script.version}`}`.cwd(outdir)
+  await $`git commit -m ${`chore: update ${name} to ${script.version}`}`.cwd(outdir)
   await $`git push origin master`.cwd(outdir)
 }
 await UpdateArtifact.publish({
-  channel: Script.channel,
+  channel: script.channel,
   name: "cli",
   distribution: "homebrew",
-  version: Script.version,
+  version: script.version,
   metadata: { package: `anomalyco/tap/${name}` },
 })

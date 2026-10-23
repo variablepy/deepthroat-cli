@@ -3,19 +3,19 @@
 import { $ } from "bun"
 import { mkdir, rm } from "fs/promises"
 import path from "path"
-import { Script } from "@opencode/script"
-import { embed } from "@opencode/script/highlights"
+import { script } from "@deepthroat/script"
+import { embed } from "@deepthroat/script/highlights"
 import { createSolidTransformPlugin } from "@opentui/solid/bun-plugin"
 import type { BunPlugin } from "bun"
 import pkg from "../package.json"
-import { discoverPluginRuntimeSpecifiers, pluginRuntimeLoaderCode } from "@opencode/plugin/runtime-modules"
+import { discoverPluginRuntimeSpecifiers, pluginRuntimeLoaderCode } from "@deepthroat/plugin/runtime-modules"
 import { buildAppArchive } from "./app-assets"
 import { verifyArtifact, verifySimulationGraph } from "./verify-artifact"
-import { resolveOpencodePty } from "./opencode-pty"
+import { resolvepty } from "./deepthroat-pty"
 import { NativeArch } from "../../../script/native-arch"
 
 const dir = path.resolve(import.meta.dirname, "..")
-const binary = "opencode"
+const binary = "deepthroat"
 const outdir = path.resolve(
   dir,
   process.argv.find((arg) => arg.startsWith("--outdir="))?.slice("--outdir=".length) ?? "dist",
@@ -31,7 +31,7 @@ const requestedTarget = process.argv.find((arg) => arg.startsWith("--target="))?
 const skipInstall = process.argv.includes("--skip-install")
 const skipWebUi = process.argv.includes("--skip-web-ui")
 const solidPlugin = createSolidTransformPlugin()
-const highlights = Script.preview ? undefined : embed(process.env.OPENCODE_RELEASE_NOTES)
+const highlights = script.preview ? undefined : embed(process.env.DEEPTHROAT_RELEASE_NOTES)
 const releaseAssets = new Map<string, Promise<Map<string, string>>>()
 
 const allTargets: {
@@ -70,15 +70,15 @@ if (!targets.length) throw new Error(`Unknown build target: ${requestedTarget}`)
 if (!skipInstall)
   await $`bun install --os="*" --cpu="*" --libc="*" @opentui/core@${pkg.dependencies["@opentui/core"]} @opencode-ai/pty@${pkg.dependencies["@opencode-ai/pty"]}`
 const appArchive = path.join(dir, ".cache", "bun-app-archive.bin")
-await Bun.write(appArchive, await buildAppArchive(Script.channel, { skipBuild: skipWebUi }))
+await Bun.write(appArchive, await buildAppArchive(script.channel, { skipBuild: skipWebUi }))
 const appAssetsPlugin: BunPlugin = {
-  name: "opencode-app-assets",
+  name: "deepthroat-app-assets",
   setup(build) {
-    build.onResolve({ filter: /^virtual:opencode-app-assets$/ }, () => ({
-      path: "opencode-app-assets",
-      namespace: "opencode",
+    build.onResolve({ filter: /^virtual:deepthroat-app-assets$/ }, () => ({
+      path: "deepthroat-app-assets",
+      namespace: "deepthroat",
     }))
-    build.onLoad({ filter: /^opencode-app-assets$/, namespace: "opencode" }, () => ({
+    build.onLoad({ filter: /^deepthroat-app-assets$/, namespace: "deepthroat" }, () => ({
       loader: "js",
       // Embedded as a file, not a string: its bytes go into the executable once and unencoded.
       contents: `import { readFileSync } from "node:fs"
@@ -98,7 +98,7 @@ const pluginRuntimeModulesSource = [
   "export const loadRuntimeModules = () => modules",
 ].join("\n")
 const pluginRuntimePlugin: BunPlugin = {
-  name: "opencode-plugin-runtime",
+  name: "deepthroat-plugin-runtime",
   setup(build) {
     build.onLoad({ filter: /plugin[/\\]src[/\\]runtime-modules\.ts$/ }, () => ({
       contents: pluginRuntimeModulesSource,
@@ -106,33 +106,33 @@ const pluginRuntimePlugin: BunPlugin = {
     }))
     build.onLoad({ filter: /[/\\]internal[/\\]httpApi(?:Scalar|Swagger)\.js$/ }, () => ({
       contents:
-        'export const css = ""; export const javascript = \'document.body.textContent = "Scalar/Swagger UI assets are not bundled in OpenCode"\'',
+        'export const css = ""; export const javascript = \'document.body.textContent = "Scalar/Swagger UI assets are not bundled in DeepThroat"\'',
       loader: "js",
     }))
   },
 }
 
 for (const item of targets) {
-  const opencodePty = await resolveOpencodePty({
+  const deepthroatPty = await resolvepty({
     platform: item.os,
     arch: item.arch,
     ...(item.os === "linux" ? { libc: item.abi ?? "glibc" } : {}),
   })
-  const opencodePtyPlugin: BunPlugin = {
-    name: "opencode-pty-binary",
+  const deepthroatPtyPlugin: BunPlugin = {
+    name: "deepthroat-pty-binary",
     setup(build) {
       build.onLoad({ filter: /persistent-pty[/\\]pty-binding\.ts$/ }, () => ({
         loader: "js",
-        contents: opencodePty
-          ? `import file from ${JSON.stringify(opencodePty.source)} with { type: "file" }
-export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sha256: ${JSON.stringify(opencodePty.sha256)} }`
+        contents: deepthroatPty
+          ? `import file from ${JSON.stringify(deepthroatPty.source)} with { type: "file" }
+export default { path: file, version: ${JSON.stringify(deepthroatPty.version)}, sha256: ${JSON.stringify(deepthroatPty.sha256)} }`
           : "export default undefined",
       }))
     },
   }
   const simulationInputs = new Set<string>()
   const simulationGraphPlugin: BunPlugin = {
-    name: "opencode-simulation-graph",
+    name: "deepthroat-simulation-graph",
     setup(build) {
       build.onLoad(
         { filter: /packages[/\\]simulation[/\\]src[/\\](frontend[/\\](simulation|server)|control-server)\.ts$/ },
@@ -161,7 +161,7 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
       appAssetsPlugin,
       solidPlugin,
       parcelWatcherPlugin,
-      opencodePtyPlugin,
+      deepthroatPtyPlugin,
       pluginRuntimePlugin,
       simulationGraphPlugin,
     ],
@@ -169,7 +169,7 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
     format: "esm",
     minify: true,
     bytecode: true,
-    sourcemap: Script.channel === "dev" || Script.channel === "local" ? "inline" : "none",
+    sourcemap: script.channel === "dev" || script.channel === "local" ? "inline" : "none",
     splitting: true,
     compile: {
       autoloadBunfig: false,
@@ -181,7 +181,7 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
       outfile: path.join(outdir, name, "bin", binary),
       execArgv: [
         "--smol",
-        `--user-agent=opencode/${Script.channel}/${Script.version}/cli`,
+        `--user-agent=deepthroat/${script.channel}/${script.version}/cli`,
         "--use-system-ca",
         "--no-warnings",
         "--",
@@ -189,12 +189,12 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
       windows: {},
     },
     define: {
-      OPENCODE_VERSION: `'${Script.version}'`,
-      OPENCODE_CLI_NAME: "'opencode'",
-      OPENCODE_CHANNEL: `'${Script.channel}'`,
-      OPENCODE_ARTIFACT: `'cli'`,
-      ...(highlights ? { OPENCODE_RELEASE_HIGHLIGHTS: JSON.stringify(highlights) } : {}),
-      OPENCODE_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "undefined",
+      deepthroatversion: `'${script.version}'`,
+      deepthroatcliname: "'deepthroat'",
+      deepthroatchannel: `'${script.channel}'`,
+      deepthroatartifact: `'cli'`,
+      ...(highlights ? { deepthroatreleasehighlights: JSON.stringify(highlights) } : {}),
+      DEEPTHROAT_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "undefined",
       // FFF_LIBC selects the fff native lib variant: "musl" or "gnu".
       FFF_LIBC: item.os === "linux" ? `'${item.abi ?? "gnu"}'` : "undefined",
       ...(item.os === "linux" ? { "process.env.OPENTUI_LIBC": JSON.stringify(item.abi ?? "glibc") } : {}),
@@ -212,10 +212,10 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
     path.join(outdir, name, "package.json"),
     JSON.stringify(
       {
-        name: `@opencode/${name}`,
-        version: Script.version,
+        name: `@deepthroat/${name}`,
+        version: script.version,
         license: "MIT",
-        repository: { type: "git", url: "git+https://github.com/anomalyco/opencode.git" },
+        repository: { type: "git", url: "git+https://github.com/variablepy/deepthroat-cli.git" },
         os: [item.os],
         cpu: [item.arch],
       },
