@@ -1,10 +1,13 @@
 param(
     [ValidateSet('add', 'remove', 'standalone', 'migrate')][string]$action,
-    [Parameter(Mandatory = $true)][string]$directory
+    [Parameter(Mandatory = $true)][string]$directory,
+    [ValidatePattern('^Software\\DeepThroat(?:\\[A-Za-z0-9-]+)+$')][string]$state = 'Software\DeepThroat\CLI',
+    [ValidateSet('User', 'Process')][string]$pathscope = 'User',
+    [string]$legacydirectory = (Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Programs\deepthroat')
 )
 $ErrorActionPreference = 'Stop'
 $target = [IO.Path]::GetFullPath($directory).TrimEnd('\')
-$registry = 'HKCU:\Software\DeepThroat\CLI'
+$registry = 'HKCU:\' + $state
 $properties = @{ path = $null; desktop = $null; launcherpath = $null; launcherhash = $null }
 $saved = Get-ItemProperty -LiteralPath $registry -ErrorAction SilentlyContinue
 if ($saved) {
@@ -12,27 +15,29 @@ if ($saved) {
         if ($saved.PSObject.Properties[$name]) { $properties[$name] = $saved.PSObject.Properties[$name].Value }
     }
 }
-$current = [Environment]::GetEnvironmentVariable('Path', 'User')
+$current = [Environment]::GetEnvironmentVariable('Path', $pathscope)
 $entries = @($current -split ';' | Where-Object { $_ })
 $owned = $properties.path
 if ($action -in @('add', 'standalone', 'migrate') -and -not (Test-Path -LiteralPath (Join-Path $target 'deepthroat.exe') -PathType Leaf)) { throw 'The CLI executable is missing.' }
+if ($action -ne 'remove') {
+    $created = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($state)
+    $created.Dispose()
+}
 if ($action -eq 'standalone') {
     $entries = @($entries | Where-Object { $_.Trim('"').TrimEnd('\') -ine $target })
-    [Environment]::SetEnvironmentVariable('Path', ((@($target) + $entries) -join ';'), 'User')
-    if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
+    [Environment]::SetEnvironmentVariable('Path', ((@($target) + $entries) -join ';'), $pathscope)
     $null = New-ItemProperty -LiteralPath $registry -Name 'standalone' -Value $target -PropertyType String -Force
-    $env:Path = "$target;$env:Path"
+    if ($pathscope -eq 'User') { $env:Path = "$target;$env:Path" }
 } elseif ($action -eq 'add') {
-    if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
     $null = New-ItemProperty -LiteralPath $registry -Name 'desktop' -Value $target -PropertyType String -Force
     if (-not ($entries | Where-Object { $_.Trim('"').TrimEnd('\') -ieq $target })) {
-        [Environment]::SetEnvironmentVariable('Path', (($entries + $target) -join ';'), 'User')
+        [Environment]::SetEnvironmentVariable('Path', (($entries + $target) -join ';'), $pathscope)
         $null = New-ItemProperty -LiteralPath $registry -Name 'path' -Value $target -PropertyType String -Force
     }
 } elseif ($action -eq 'remove') {
     if ($owned -and $owned.TrimEnd('\') -ieq $target) {
         $remaining = @($entries | Where-Object { $_.Trim('"').TrimEnd('\') -ine $target })
-        [Environment]::SetEnvironmentVariable('Path', ($remaining -join ';'), 'User')
+        [Environment]::SetEnvironmentVariable('Path', ($remaining -join ';'), $pathscope)
         Remove-ItemProperty -LiteralPath $registry -Name 'path'
     }
     if ($properties.desktop -and $properties.desktop.TrimEnd('\') -ieq $target) {
@@ -40,7 +45,7 @@ if ($action -eq 'standalone') {
     }
 }
 if ($action -ne 'remove') {
-    $legacy = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Programs\deepthroat\deepthroat.cmd'
+    $legacy = Join-Path $legacydirectory 'deepthroat.cmd'
     $launcher = @'
 @echo off
 setlocal DisableDelayedExpansion
@@ -57,6 +62,7 @@ exit /b 1
 "%target%" %*
 exit /b %errorlevel%
 '@
+    $launcher = $launcher.Replace('HKCU\Software\DeepThroat\CLI', 'HKCU\' + $state)
     if (Test-Path -LiteralPath $legacy -PathType Leaf) {
         $content = Get-Content -LiteralPath $legacy -Raw
         $hash = (Get-FileHash -LiteralPath $legacy -Algorithm SHA256).Hash
@@ -68,12 +74,12 @@ exit /b %errorlevel%
             $temporary = $legacy + '.pending'
             [IO.File]::WriteAllText($temporary, $launcher.Replace("`r`n", "`n").Replace("`n", "`r`n") + "`r`n", [Text.Encoding]::ASCII)
             Move-Item -LiteralPath $temporary -Destination $legacy -Force
-            if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
-            $null = New-ItemProperty -LiteralPath $registry -Name 'launcherpath' -Value $legacy -PropertyType String -Force
+                    $null = New-ItemProperty -LiteralPath $registry -Name 'launcherpath' -Value $legacy -PropertyType String -Force
             $null = New-ItemProperty -LiteralPath $registry -Name 'launcherhash' -Value (Get-FileHash -LiteralPath $legacy -Algorithm SHA256).Hash -PropertyType String -Force
         }
     }
 }
+if ($pathscope -eq 'User') {
 if (-not ('deepthroat.settings' -as [type])) {
     Add-Type -TypeDefinition @'
 using System;
@@ -88,3 +94,4 @@ namespace deepthroat {
 }
 $result = [IntPtr]::Zero
 $null = [deepthroat.settings]::send([IntPtr]0xffff, 0x1a, [IntPtr]::Zero, 'Environment', 2, 5000, [ref]$result)
+}

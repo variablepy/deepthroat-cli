@@ -9,7 +9,7 @@ An open-source terminal coding agent connected to your DeepThroat account.
 Download the Windows x64 ZIP from the release page and extract it. Run `deepthroat.exe` directly, or download and review the versioned `install.ps1` to install the `deepthroat` command on your user PATH:
 
 ```powershell
-.\install.ps1 -version v0.1.2
+.\install.ps1 -version v0.1.3
 deepthroat auth login
 deepthroat
 ```

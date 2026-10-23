@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Create fresh nested Windows registration keys without replacing existing values.
+- Run isolated coexistence checks before publishing release assets.
+
 ## 0.1.2
 
 - Preserve shared registry values during launcher migration and desktop registration.
