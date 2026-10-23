@@ -19,11 +19,11 @@ if ($action -in @('add', 'standalone', 'migrate') -and -not (Test-Path -LiteralP
 if ($action -eq 'standalone') {
     $entries = @($entries | Where-Object { $_.Trim('"').TrimEnd('\') -ine $target })
     [Environment]::SetEnvironmentVariable('Path', ((@($target) + $entries) -join ';'), 'User')
-    $null = New-Item -Path $registry -Force
+    if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
     $null = New-ItemProperty -LiteralPath $registry -Name 'standalone' -Value $target -PropertyType String -Force
     $env:Path = "$target;$env:Path"
 } elseif ($action -eq 'add') {
-    $null = New-Item -Path $registry -Force
+    if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
     $null = New-ItemProperty -LiteralPath $registry -Name 'desktop' -Value $target -PropertyType String -Force
     if (-not ($entries | Where-Object { $_.Trim('"').TrimEnd('\') -ieq $target })) {
         [Environment]::SetEnvironmentVariable('Path', (($entries + $target) -join ';'), 'User')
@@ -68,7 +68,7 @@ exit /b %errorlevel%
             $temporary = $legacy + '.pending'
             [IO.File]::WriteAllText($temporary, $launcher.Replace("`r`n", "`n").Replace("`n", "`r`n") + "`r`n", [Text.Encoding]::ASCII)
             Move-Item -LiteralPath $temporary -Destination $legacy -Force
-            $null = New-Item -Path $registry -Force
+            if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
             $null = New-ItemProperty -LiteralPath $registry -Name 'launcherpath' -Value $legacy -PropertyType String -Force
             $null = New-ItemProperty -LiteralPath $registry -Name 'launcherhash' -Value (Get-FileHash -LiteralPath $legacy -Algorithm SHA256).Hash -PropertyType String -Force
         }

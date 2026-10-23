@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing version tag to release
         required: true
-        default: v0.1.1
+        default: v0.1.2
         type: string
       verifyonly:
         description: Verify an existing release without rebuilding or publishing
@@ -78,7 +78,12 @@ jobs:
           $legacy = Join-Path $legacydir 'deepthroat.cmd'
           [IO.File]::WriteAllText($legacy, ('@echo off' + "`r`n" + 'python "C:\legacy\deepthroat\cli\entry.py" %*' + "`r`n"), [Text.Encoding]::ASCII)
           $env:Path = "$legacydir;$env:Path"
+          $registry = 'HKCU:\Software\DeepThroat\CLI'
+          if (-not (Test-Path -LiteralPath $registry)) { $null = New-Item -Path $registry }
+          $null = New-ItemProperty -LiteralPath $registry -Name sentinel -Value preserve -PropertyType String
           ./install.ps1 -version $env:releaseversion -directory $directory
+          $registration = Get-ItemProperty -LiteralPath $registry
+          if ($registration.standalone -ne $directory -or $registration.sentinel -ne 'preserve') { throw 'Installer replaced shared registration values' }
           $resolved = (@(Get-Command deepthroat -CommandType Application)[0]).Source
           if ($resolved -ne (Join-Path $directory 'deepthroat.exe')) { throw 'CLI command resolves to the wrong application' }
           $reported = & deepthroat --version

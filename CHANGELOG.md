@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Preserve shared registry values during launcher migration and desktop registration.
+
 ## 0.1.1
 
 - Repair recognized legacy Python launchers with a backed-up, managed dispatcher.
