@@ -10,6 +10,11 @@ on:
         required: true
         default: v0.1.1
         type: string
+      verifyonly:
+        description: Verify an existing release without rebuilding or publishing
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -20,7 +25,7 @@ concurrency:
 
 jobs:
   windows:
-    if: github.repository == 'variablepy/deepthroat-cli'
+    if: github.repository == 'variablepy/deepthroat-cli' && !inputs.verifyonly
     runs-on: windows-latest
     env:
       releaseversion: ${{ github.event.inputs.tag || github.ref_name }}
@@ -55,6 +60,7 @@ jobs:
           gh release create $env:releaseversion artifacts/deepthroat-windows-x64.zip artifacts/deepthroat-windows-x64.exe artifacts/SHA256SUMS artifacts/LICENSE.txt artifacts/integration.ps1 install.ps1 --verify-tag --title "DeepThroat CLI $env:releaseversion" --notes-file docs/release-notes.md
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
   installation:
+    if: always() && (needs.windows.result == 'success' || inputs.verifyonly)
     needs: windows
     runs-on: windows-latest
     env:
@@ -73,7 +79,7 @@ jobs:
           [IO.File]::WriteAllText($legacy, ('@echo off' + "`r`n" + 'python "C:\legacy\deepthroat\cli\entry.py" %*' + "`r`n"), [Text.Encoding]::ASCII)
           $env:Path = "$legacydir;$env:Path"
           ./install.ps1 -version $env:releaseversion -directory $directory
-          $resolved = (Get-Command deepthroat -CommandType Application).Source
+          $resolved = (@(Get-Command deepthroat -CommandType Application)[0]).Source
           if ($resolved -ne (Join-Path $directory 'deepthroat.exe')) { throw 'CLI command resolves to the wrong application' }
           $reported = & deepthroat --version
           if ($LASTEXITCODE -ne 0 -or $reported -ne "deepthroat $env:releaseversion") { throw 'Installed CLI version mismatch' }
