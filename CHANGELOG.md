@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6
+
+- Default to hosted search for new and retired search integrations, while honoring disabled search.
+
 ## 0.1.5
 
 - Use authenticated DeepThroat hosted web search with website sign-in.

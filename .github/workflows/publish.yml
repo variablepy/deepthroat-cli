@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing version tag to release
         required: true
-        default: v0.1.5
+        default: v0.1.6
         type: string
       verifyonly:
         description: Verify an existing release without rebuilding or publishing

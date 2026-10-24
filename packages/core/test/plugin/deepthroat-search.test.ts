@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test"
 import { Effect } from "effect"
 import { HttpClient, HttpClientResponse } from "effect/http"
+import { WebSearch } from "@deepthroat/core/websearch"
+import { TestWebSearch } from "../lib/websearch"
+import { testEffect } from "../lib/effect"
 import { endpoint, search } from "../../src/plugin/websearch/deepthroat"
 
 test("account search sends only the query to our authenticated endpoint and preserves sources", async () => {
@@ -21,3 +24,15 @@ test("search failures never expose account credentials or accept malformed resul
     await expect(Effect.runPromise(search(http, "private-token", "current releases"))).rejects.toThrow("DeepThroat web search could not complete")
   }
 })
+
+const it = testEffect(TestWebSearch.layer)
+
+it.effect("hosted search handles fresh and removed provider selections but honors disabled search", () => Effect.gen(function* () {
+  const websearch = yield* WebSearch.Service
+  yield* websearch.transform(editor => editor.add({ id: WebSearch.ID.make("deepthroat"), name: "DeepThroat", execute: () => Effect.succeed([{ url: "https://example.org", title: "Source", content: "Evidence", time: {} }]) }))
+  expect(String((yield* websearch.query({ query: "fresh" })).providerID)).toBe("deepthroat")
+  yield* websearch.select(WebSearch.ID.make("exa"))
+  expect(String((yield* websearch.query({ query: "migrated" })).providerID)).toBe("deepthroat")
+  yield* websearch.select(false)
+  expect((yield* websearch.query({ query: "disabled" }).pipe(Effect.flip))._tag).toBe("WebSearch.Disabled")
+}))

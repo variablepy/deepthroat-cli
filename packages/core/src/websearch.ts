@@ -155,7 +155,7 @@ const layer = Layer.effect(
           state.get().providers.values().next().value
         )
       }
-      return choice ? state.get().providers.get(choice) : undefined
+      return (choice ? state.get().providers.get(choice) : undefined) ?? state.get().providers.get(ID.make("deepthroat"))
     })
 
     return Service.of({
