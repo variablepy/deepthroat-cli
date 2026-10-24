@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+
+- Use authenticated DeepThroat hosted web search with website sign-in.
+- Preserve search sources and publication dates without additional search keys.
+
 ## 0.1.4
 
 - Restore a full DeepThroat block ASCII wordmark with a compact terminal variant.

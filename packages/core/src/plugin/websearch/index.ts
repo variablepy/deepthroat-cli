@@ -1,13 +1,4 @@
-import { WebSearchExa } from "./exa.js"
-import { WebSearchFirecrawl } from "./firecrawl.js"
-import { WebSearchParallel } from "./parallel.js"
-import { WebSearchTavily } from "./tavily.js"
-import { WebSearchTinyFish } from "./tinyfish.js"
+import { searchplugin } from "./deepthroat.js"
 
-export const WebSearchPlugins = [
-  WebSearchExa.Plugin,
-  WebSearchFirecrawl.Plugin,
-  WebSearchParallel.Plugin,
-  WebSearchTavily.Plugin,
-  WebSearchTinyFish.Plugin,
-] as const
+const plugins = [searchplugin] as const
+export { plugins as WebSearchPlugins }
