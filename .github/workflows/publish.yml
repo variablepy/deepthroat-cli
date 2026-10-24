@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing version tag to release
         required: true
-        default: v0.1.6
+        default: v0.1.7
         type: string
       verifyonly:
         description: Verify an existing release without rebuilding or publishing
@@ -52,6 +52,8 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $version -ne "deepthroat $env:releaseversion") { throw 'Compiled CLI version mismatch' }
           & ./artifacts/deepthroat-windows-x64.exe auth --help
           if ($LASTEXITCODE -ne 0) { throw 'Compiled authentication help failed' }
+          $providers = & ./artifacts/deepthroat-windows-x64.exe api --standalone get /api/websearch/provider | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or @($providers.data | Where-Object { $_.id -eq 'deepthroat' }).Count -ne 1) { throw 'Hosted web search was not registered in the executable' }
       - name: Verify isolated Windows installation integration
         shell: pwsh
         run: ./script/testwindows.ps1 -binary ./artifacts/deepthroat-windows-x64.exe

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7
+
+- Register hosted search in the installed CLI and verify provider availability in the compiled executable.
+
 ## 0.1.6
 
 - Default to hosted search for new and retired search integrations, while honoring disabled search.

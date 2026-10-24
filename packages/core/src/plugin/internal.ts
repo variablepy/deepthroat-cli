@@ -93,6 +93,7 @@ import { IdentityPlugin } from "./identity.js"
 import { PlanPlugin } from "./plan.js"
 import { McpCodeModeDefaultsPlugin } from "./mcp-codemode-defaults.js"
 import { providerplugins } from "./provider.js"
+import { searchplugin } from "./websearch/deepthroat.js"
 import { SkillPlugin } from "./skill.js"
 import { VcsHgPlugin } from "./vcs/hg.js"
 import { ToolInputRepairPlugin } from "./tool-input-repair.js"
@@ -223,6 +224,7 @@ const pre = [
   SkillPlugin.Plugin,
   VcsHgPlugin.Plugin,
   ...providerplugins,
+  searchplugin,
   PatchTool.Plugin,
   // Render model prompts after the patch plugin selects the available editing tools.
   ...OptimizePlugin.Plugins,

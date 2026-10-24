@@ -11,6 +11,7 @@ export const WebSearchHandler = HttpApiBuilder.group(Api, "server.websearch", (h
       .handle(
         "websearch.providers",
         Effect.fn("server.websearch.providers")(function* () {
+          yield* awaitPlugins
           const websearch = yield* WebSearch.Service
           return yield* response(websearch.providers())
         }),
