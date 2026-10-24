@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing version tag to release
         required: true
-        default: v0.1.7
+        default: v0.1.8
         type: string
       verifyonly:
         description: Verify an existing release without rebuilding or publishing
@@ -57,16 +57,110 @@ jobs:
       - name: Verify isolated Windows installation integration
         shell: pwsh
         run: ./script/testwindows.ps1 -binary ./artifacts/deepthroat-windows-x64.exe
-      - name: Publish versioned release assets
+      - name: Stage verified Windows assets
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
+        run: Move-Item artifacts/SHA256SUMS artifacts/SHA256SUMS.windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-windows
+          path: artifacts/*
+          retention-days: 3
+  linux:
+    if: github.repository == 'variablepy/deepthroat-cli' && !inputs.verifyonly
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            architecture: x64
+            baseline: --baseline
+          - runner: ubuntu-24.04-arm
+            architecture: arm64
+            baseline: ""
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      releaseversion: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: ./.github/actions/setup-bun
+      - name: Verify version and installer
         run: |
-          gh release create $env:releaseversion artifacts/deepthroat-windows-x64.zip artifacts/deepthroat-windows-x64.exe artifacts/SHA256SUMS artifacts/LICENSE.txt artifacts/integration.ps1 install.ps1 --verify-tag --title "DeepThroat CLI $env:releaseversion" --notes-file docs/release-notes.md
-          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
+          test "v$(node -p "require('./package.json').version")" = "$releaseversion"
+          bash -n install
+          python3 script/testlinux.py
+      - name: Build native Linux CLI
+        run: bun run --cwd packages/cli script/build.ts --single ${{ matrix.baseline }} --skip-install --skip-web-ui
+      - name: Package native executable and checksums
+        run: bun run packages/cli/script/package-linux.ts
+      - name: Smoke test compiled CLI and install
+        run: |
+          binary="$PWD/artifacts/deepthroat-linux-${{ matrix.architecture }}"
+          test "$("$binary" --version)" = "deepthroat $releaseversion"
+          "$binary" auth --help
+          "$binary" api --standalone get /api/websearch/provider > "$RUNNER_TEMP/search.json"
+          node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync(process.argv[1]));if(!data.data.some(x=>x.id==="deepthroat"))process.exit(1)' "$RUNNER_TEMP/search.json"
+          bash install --binary "$binary" --directory "$RUNNER_TEMP/cli install/bin"
+          bash install --binary "$binary" --directory "$RUNNER_TEMP/cli install/bin"
+          test "$("$RUNNER_TEMP/cli install/bin/deepthroat" --version)" = "deepthroat $releaseversion"
+          "$RUNNER_TEMP/cli install/bin/deepthroat" --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-linux-${{ matrix.architecture }}
+          path: artifacts/*
+          retention-days: 3
+  publish:
+    needs: [windows, linux]
+    runs-on: ubuntu-24.04
+    env:
+      releaseversion: ${{ github.event.inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cli-*
+          path: artifacts
+          merge-multiple: true
+      - name: Publish all verified platforms together
+        run: |
+          cat artifacts/SHA256SUMS.windows artifacts/SHA256SUMS.linux-x64 artifacts/SHA256SUMS.linux-arm64 > artifacts/SHA256SUMS
+          (cd artifacts && sha256sum --check SHA256SUMS)
+          cp install artifacts/install.sh
+          cp install.ps1 artifacts/install.ps1
+          cd artifacts
+          sha256sum install.sh install.ps1 >> SHA256SUMS
+          rm SHA256SUMS.windows SHA256SUMS.linux-x64 SHA256SUMS.linux-arm64
+          gh release create "$releaseversion" ./* --verify-tag --draft --title "DeepThroat CLI $releaseversion" --notes-file ../docs/release-notes.md
+          gh release edit "$releaseversion" --draft=false --latest
+  linuxinstallation:
+    if: always() && (needs.publish.result == 'success' || inputs.verifyonly)
+    needs: publish
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    env:
+      releaseversion: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - name: Install and reinstall public Linux release
+        run: |
+          curl -fsSL "https://github.com/variablepy/deepthroat-cli/releases/download/$releaseversion/install.sh" -o "$RUNNER_TEMP/install.sh"
+          bash "$RUNNER_TEMP/install.sh" --version "$releaseversion" --directory "$RUNNER_TEMP/public cli/bin"
+          bash "$RUNNER_TEMP/install.sh" --version "$releaseversion" --directory "$RUNNER_TEMP/public cli/bin"
+          export PATH="$RUNNER_TEMP/public cli/bin:$PATH"
+          test "$(deepthroat --version)" = "deepthroat $releaseversion"
+          deepthroat auth --help
+          deepthroat upgrade "$releaseversion" --method standalone
+          test "$(deepthroat --version)" = "deepthroat $releaseversion"
   installation:
-    if: always() && (needs.windows.result == 'success' || inputs.verifyonly)
-    needs: windows
+    if: always() && (needs.publish.result == 'success' || inputs.verifyonly)
+    needs: publish
     runs-on: windows-latest
     env:
       releaseversion: ${{ github.event.inputs.tag || github.ref_name }}

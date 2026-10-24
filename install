@@ -1,27 +1,81 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  printf '%s\n' 'DeepThroat CLI installer' 'Windows: run install.ps1 from a versioned GitHub release.' 'Linux/macOS: build from source with Bun, then run:' './install --binary /absolute/path/to/deepthroat'
-  exit 0
-fi
+fatal() { printf '%s\n' "$*" >&2; exit 1; }
+fetch() { curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --connect-timeout 15 --max-time 180 --retry 2 "$@"; }
 
-if [[ "${1:-}" != "--binary" || -z "${2:-}" || "$#" -ne 2 ]]; then
-  printf '%s\n' 'Packaged releases currently support Windows x64.' 'For Linux/macOS, build from source and use ./install --binary /absolute/path/to/deepthroat.' >&2
-  exit 1
-fi
-
-binary="$2"
+version=""
 directory="${XDG_BIN_HOME:-$HOME/.local/bin}"
-if [[ ! -f "$binary" || ! -x "$binary" ]]; then
-  printf '%s\n' 'The supplied CLI binary must be an executable file.' >&2
-  exit 1
+binary=""
+temporary=""
+pending=""
+cleanup() {
+  if [[ -n "$pending" && -f "$pending" ]]; then rm -f -- "$pending"; fi
+  if [[ -n "$temporary" && -d "$temporary" ]]; then rm -rf -- "$temporary"; fi
+}
+trap cleanup EXIT
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --version|--directory|--binary)
+      [[ "$#" -ge 2 && -n "$2" ]] || fatal "$1 requires a value."
+      case "$1" in
+        --version) version="$2" ;;
+        --directory) directory="$2" ;;
+        --binary) binary="$2" ;;
+      esac
+      shift 2 ;;
+    --help|-h)
+      printf '%s\n' 'DeepThroat CLI installer for Linux x64 and ARM64 (glibc).' 'Usage: bash install [--version v0.1.8] [--directory /path/to/bin]' 'Default directory: ~/.local/bin (no sudo needed).' 'Source builds: bash install --binary /absolute/path/to/deepthroat'
+      exit 0 ;;
+    *) fatal "Unknown option: $1" ;;
+  esac
+done
+
+[[ "$directory" = /* ]] || fatal 'Installation directory must be an absolute path.'
+if [[ -z "$binary" ]]; then
+  [[ "$(uname -s)" = Linux ]] || fatal 'This installer supports Linux. On Windows use install.ps1.'
+  case "$(uname -m)" in
+    x86_64|amd64) architecture=x64 ;;
+    aarch64|arm64) architecture=arm64 ;;
+    *) fatal 'Supported Linux architectures: x64 and ARM64.' ;;
+  esac
+  for dependency in curl sha256sum awk mktemp; do command -v "$dependency" >/dev/null || fatal "Install $dependency and retry."; done
+  if ! getconf GNU_LIBC_VERSION >/dev/null 2>&1; then fatal 'The Linux release requires glibc. Alpine/musl is not supported by this installer.'; fi
+  repository='https://github.com/variablepy/deepthroat-cli/releases'
+  if [[ -z "$version" ]]; then
+    location="$(fetch -o /dev/null -w '%{url_effective}' "$repository/latest")"
+    version="${location##*/}"
+  fi
+  [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || fatal 'Use a stable version such as v0.1.8.'
+  temporary="$(mktemp -d "${TMPDIR:-/tmp}/deepthroat-install.XXXXXXXX")"
+  asset="deepthroat-linux-$architecture"
+  printf 'Downloading DeepThroat CLI %s for Linux %s...\n' "$version" "$architecture"
+  fetch "$repository/download/$version/SHA256SUMS" -o "$temporary/SHA256SUMS"
+  fetch "$repository/download/$version/$asset" -o "$temporary/$asset"
+  count="$(awk -v name="$asset" '$2 == name {count++} END {print count+0}' "$temporary/SHA256SUMS")"
+  [[ "$count" = 1 ]] || fatal 'Release checksum is missing or ambiguous; existing installation was preserved.'
+  expected="$(awk -v name="$asset" '$2 == name {print tolower($1)}' "$temporary/SHA256SUMS")"
+  actual="$(sha256sum "$temporary/$asset" | awk '{print $1}')"
+  [[ "$expected" =~ ^[a-f0-9]{64}$ && "$actual" = "$expected" ]] || fatal 'Checksum verification failed; existing installation was preserved.'
+  binary="$temporary/$asset"
+  chmod 755 "$binary"
 fi
-version="$("$binary" --version)"
-if [[ ! "$version" =~ ^deepthroat\ v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  printf '%s\n' 'The supplied executable is not a stable DeepThroat CLI build.' >&2
-  exit 1
-fi
-mkdir -p "$directory"
-install -m 755 "$binary" "$directory/deepthroat"
-printf '%s\n' "Installed $version to $directory/deepthroat" "Ensure $directory is on your PATH."
+
+[[ -f "$binary" && -x "$binary" ]] || fatal 'The supplied CLI binary must be an executable file.'
+reported="$("$binary" --version)" || fatal 'The CLI could not run on this system; existing installation was preserved.'
+[[ "$reported" =~ ^deepthroat\ v[0-9]+\.[0-9]+\.[0-9]+$ ]] || fatal 'The executable is not a stable DeepThroat CLI build.'
+[[ -z "$version" || "$reported" = "deepthroat $version" ]] || fatal 'The executable version does not match the requested release.'
+mkdir -p -- "$directory"
+[[ ! -L "$directory/deepthroat" ]] || fatal 'The existing deepthroat command is a symlink; select a different directory or manage that symlink yourself.'
+pending="$(mktemp "$directory/.deepthroat.XXXXXXXX")"
+cat -- "$binary" > "$pending"
+chmod 755 "$pending"
+mv -f -- "$pending" "$directory/deepthroat"
+pending=""
+printf 'Installed %s to %s/deepthroat\n' "$reported" "$directory"
+case ":$PATH:" in
+  *":$directory:"*) ;;
+  *) printf 'Add this directory to your shell PATH:\n  export PATH="%s:$PATH"\n' "$directory" ;;
+esac
+printf '%s\n' 'Then run: deepthroat auth login' 'Start coding: deepthroat'

@@ -2,14 +2,14 @@
 
 An open-source terminal coding agent connected to your DeepThroat account.
 
-[Download for Windows](https://github.com/variablepy/deepthroat-cli/releases/latest) ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· [Apps](https://cheapai.gay/apps) ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· [Distribution](docs/distribution.md)
+[Download CLI](https://github.com/variablepy/deepthroat-cli/releases/latest) ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· [Apps](https://cheapai.gay/apps) ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· [Distribution](docs/distribution.md)
 
 ## Start building
 
 Download the Windows x64 ZIP from the release page and extract it. Run `deepthroat.exe` directly, or download and review the versioned `install.ps1` to install the `deepthroat` command on your user PATH:
 
 ```powershell
-.\install.ps1 -version v0.1.7
+.\install.ps1 -version v0.1.8
 deepthroat auth login
 deepthroat
 ```
@@ -25,7 +25,21 @@ Token-cost figures in the terminal are estimates. Your account's billing is auth
 - MCP tools, language servers, reusable skills, and persistent sessions.
 - Verified standalone updates through `deepthroat upgrade`.
 
-Windows releases are standalone executables and require no Node.js or Bun installation. Linux and macOS source build targets are retained. Desktop bundling is being verified separately; both apps can be installed independently.
+Windows x64 and Linux x64/ARM64 releases are standalone executables and require no Node.js or Bun installation. Linux requires glibc; Alpine/musl is not supported by the installer. Desktop remains a separate Windows download.
+
+## Linux
+
+Download and review the versioned installer, then run:
+
+```bash
+curl -fsSL https://github.com/variablepy/deepthroat-cli/releases/download/v0.1.8/install.sh -o install.sh
+bash install.sh --version v0.1.8
+export PATH="$HOME/.local/bin:$PATH"
+deepthroat auth login
+deepthroat
+```
+
+The installer detects x64 or ARM64, verifies the exact SHA-256 checksum and executable version, and atomically installs into `~/.local/bin` without sudo. Add the PATH line to your shell configuration if needed. Use `--directory /absolute/path/to/bin` for a custom directory. Reinstalling and `deepthroat upgrade` preserve account data.
 
 ## Develop
 

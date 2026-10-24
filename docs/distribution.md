@@ -46,3 +46,9 @@ Desktop bundling and live executable-replacement verification are being complete
 ## Existing installations
 
 The standalone CLI stays preferred when Desktop installs its optional bundled CLI. Each uses a separate directory. Desktop uninstall removes only its owned PATH entry and never removes the standalone binary or registration. Recognized legacy launchers that point to the retired Python entry.py are backed up and migrated; custom launchers are preserved.
+
+## Linux releases
+
+The release workflow builds and runs the CLI natively on Linux x64 and ARM64 before publishing the platform assets together. The x64 build uses the baseline CPU target. Each platform includes a raw executable for the updater and a tar.gz archive containing its license. SHA256SUMS covers the executables, archives and installers.
+
+Download install.sh from the versioned release, review it, and run `bash install.sh --version v0.1.8`. It detects the architecture and installs to `~/.local/bin` without sudo. Linux requires glibc; Alpine/musl is not supported by this installer. The optional `--directory` must be an absolute path. The installer preserves the current executable when verification fails and leaves shell configuration and account data unchanged.

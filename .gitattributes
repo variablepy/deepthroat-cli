@@ -5,3 +5,6 @@ packages/core/src/**/*.txt text eol=lf
 packages/httpapi-codegen/test/generated/*.ts text eol=lf
 
 *.ps1 text eol=lf
+
+install text eol=lf
+script/testlinux.py text eol=lf

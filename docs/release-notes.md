@@ -1,9 +1,10 @@
-DeepThroat CLI connects your terminal coding agent to your website account.
+DeepThroat CLI now runs on Linux x64 and ARM64 as well as Windows x64.
 
-- Fixes recognized legacy Python entry.py launchers, preserving a backup.
-- Registers standalone installations ahead of the desktop bundle without overwriting desktop files.
-- Keeps existing terminal sessions working through the managed compatibility launcher.
-- Verifies legacy PATH resolution, checksum downloads, and real executable updates on Windows.
-- Build and Plan, file tools, terminal commands, MCP, language servers, and skills.
+- Native Linux builds with standalone executables and tar.gz downloads.
+- Architecture-detecting Linux installer with SHA-256 verification, version checks and atomic replacement.
+- Install without sudo into ~/.local/bin, or choose a custom directory.
+- Reinstall and update without changing your account data.
+- Linux install/reinstall and standalone updates verified on both architectures.
+- Existing Windows installer and desktop coexistence remain supported.
 
-Windows x64 releases include the executable, license, and the verified Windows integration helper. Desktop and CLI can be installed independently.
+Linux requires glibc. Desktop remains available for Windows. Sign in with your website account using deepthroat auth login.
