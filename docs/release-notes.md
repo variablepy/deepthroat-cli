@@ -1,10 +1,8 @@
-DeepThroat CLI now runs on Linux x64 and ARM64 as well as Windows x64.
+DeepThroat CLI streams text and reasoning updates more frequently.
 
-- Native Linux builds with standalone executables and tar.gz downloads.
-- Architecture-detecting Linux installer with SHA-256 verification, version checks and atomic replacement.
-- Install without sudo into ~/.local/bin, or choose a custom directory.
-- Reinstall and update without changing your account data.
-- Linux installation and repeat installation verified on both architectures.
-- Existing Windows installer and desktop coexistence remain supported.
+- Reduced text and reasoning batching from 100ms to 32ms.
+- Preserved exact final text, fragment ordering, tool boundaries and cancellation behavior.
+- Added the streaming event-order regression suite to the release verification gate.
+- Windows x64, Linux x64 and Linux ARM64 releases remain supported.
 
-Linux requires glibc. Desktop remains available for Windows. Sign in with your website account using deepthroat auth login.
+This changes stream delivery cadence, not model generation speed. Account selection, proxy routing and concurrency behavior are unchanged.

@@ -17,7 +17,7 @@ const environment = {
 }
 const suites = [
   { directory: "ai", files: ["test/deepthroat.test.ts", "test/testing.test.ts"] },
-  { directory: "core", files: ["test/plugin/deepthroat-search.test.ts", "test/deepthroat.test.ts", "test/permission.test.ts", "test/agent.test.ts", "test/session-create.test.ts", "test/session-diff.test.ts", "test/session-execution.test.ts", "test/session-checkpoint-transport.test.ts", "test/session-compaction-transport.test.ts", "test/session-native-compaction.test.ts", "test/session-model-transport-live.test.ts", "test/persistent-pty-daemon.test.ts", "test/pty/info-schema.test.ts", "test/pty/protocol.test.ts"] },
+  { directory: "core", files: ["test/plugin/deepthroat-search.test.ts", "test/deepthroat.test.ts", "test/permission.test.ts", "test/agent.test.ts", "test/session-create.test.ts", "test/session-diff.test.ts", "test/session-execution.test.ts", "test/session-runner-tool-events.test.ts", "test/session-checkpoint-transport.test.ts", "test/session-compaction-transport.test.ts", "test/session-native-compaction.test.ts", "test/session-model-transport-live.test.ts", "test/persistent-pty-daemon.test.ts", "test/pty/info-schema.test.ts", "test/pty/protocol.test.ts"] },
   { directory: "cli", files: ["test/auth-login-choices.test.ts", "src/services/updater.test.ts", "test/updater-install.test.ts", "test/upgrade.test.ts", "test/retained-image.test.ts"] },
   { directory: "tui", files: ["test/cli/cmd/tui/integration-options.test.ts", "test/theme/v2/resolve.test.ts", "test/theme/v2/v1-migrate.test.ts", "test/cli/tui/inline-tool-wrap-snapshot.test.tsx"] },
   { directory: "theme", files: ["test/theme.test.ts"] },

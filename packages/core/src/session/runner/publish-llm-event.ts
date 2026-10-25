@@ -96,7 +96,7 @@ const hostedContent = (result: ToolResultValue): NonEmptyContent => {
  * and consumers fold by id/ordinal rather than global position.
  */
 export const createLLMEventPublisher = (bus: Pick<Bus.Interface, "publish">, input: Input) => {
-  const deltaBatchInterval = 100
+  const deltainterval = 32
   type ToolState = {
     readonly name: string
     called: boolean
@@ -188,7 +188,7 @@ export const createLLMEventPublisher = (bus: Pick<Bus.Interface, "publish">, inp
         // Own the trailing flush in the provider fiber, even if no more chunks arrive.
         current.timer = yield* Effect.gen(function* () {
           while (current.pending) {
-            yield* Effect.sleep(deltaBatchInterval)
+            yield* Effect.sleep(deltainterval)
             yield* publishDelta(id)
           }
         }).pipe(

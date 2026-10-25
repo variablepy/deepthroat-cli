@@ -343,13 +343,13 @@ for (const kind of ["text", "reasoning"] as const) {
       yield* publisher.publish(
         LLMEvent[kind === "text" ? "textDelta" : "reasoningDelta"]({ id: kind, text: "Running the comm" }),
       )
-      yield* TestClock.adjust("100 millis")
+      yield* TestClock.adjust("32 millis")
       expect(
         published.filter((event) => event.type === `session.${kind}.delta`).map((event) => event.data),
       ).toMatchObject([{ delta: "Running the comm" }])
 
       yield* publisher.publish(LLMEvent[kind === "text" ? "textDelta" : "reasoningDelta"]({ id: kind, text: "and." }))
-      yield* TestClock.adjust("100 millis")
+      yield* TestClock.adjust("32 millis")
       expect(
         published.filter((event) => event.type === `session.${kind}.delta`).map((event) => event.data),
       ).toMatchObject([{ delta: "Running the comm" }, { delta: "and." }])
@@ -374,7 +374,7 @@ it.effect("batches text deltas and flushes pending text before the terminal even
     )
 
     expect(published.filter((event) => event.type === "session.text.delta")).toHaveLength(0)
-    yield* TestClock.adjust("99 millis")
+    yield* TestClock.adjust("31 millis")
     expect(published.filter((event) => event.type === "session.text.delta")).toHaveLength(0)
     yield* TestClock.adjust("1 millis")
     expect(published.filter((event) => event.type === "session.text.delta").map((event) => event.data)).toMatchObject([
