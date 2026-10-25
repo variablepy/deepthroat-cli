@@ -64,6 +64,12 @@ export function verifydownload(bytes: Uint8Array, sums: string, name: string) {
   if (entries.length !== 1 || createHash("sha256").update(bytes).digest("hex") !== entries[0]) throw new Error("The DeepThroat release checksum did not match.")
 }
 
+export async function downloadrelease(url: string, signal: AbortSignal, accept = "application/octet-stream") {
+  const response = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(120000)]), headers: { "User-Agent": "DeepThroatCLI", Accept: accept } })
+  if (!response.ok) throw new Error(`DeepThroat release download returned HTTP ${response.status}.`)
+  return response
+}
+
 const repository = "https://github.com/variablepy/deepthroat-cli/releases"
 const make = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem
@@ -73,15 +79,11 @@ const make = Effect.gen(function* () {
   const executable = yield* fs.realPath(process.execPath).pipe(Effect.orElseSucceed(() => process.execPath))
   const bundled = /[\\/]binaries[\\/]windows[\\/]deepthroat\.exe$/i.test(executable)
   const method = () => Effect.succeed<Method | undefined>(!deepthroatlocal && !bundled && /^deepthroat(?:\.exe)?$/i.test(path.basename(executable)) ? "standalone" : undefined)
-  const request = (url: string) => Effect.tryPromise({
-    try: async (signal) => {
-      const response = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(120000)]), headers: { "User-Agent": "DeepThroatCLI", Accept: "application/octet-stream" } })
-      if (!response.ok) throw new Error(`DeepThroat release download returned HTTP ${response.status}.`)
-      return response
-    },
-    catch: (cause) => new Error("Could not download the DeepThroat release.", { cause }),
+  const request = (url: string, accept?: string) => Effect.tryPromise({
+    try: (signal) => downloadrelease(url, signal, accept),
+    catch: (cause) => new Error(`Could not download the DeepThroat release. ${cause instanceof Error ? cause.message : String(cause)}`, { cause }),
   })
-  const latest = (selected?: Method) => request("https://api.github.com/repos/variablepy/deepthroat-cli/releases/latest").pipe(
+  const latest = (selected?: Method) => request("https://api.github.com/repos/variablepy/deepthroat-cli/releases/latest", "application/vnd.github+json").pipe(
     Effect.flatMap((response) => Effect.tryPromise({ try: () => response.json(), catch: (cause) => new Error("Invalid release information.", { cause }) })),
     Effect.flatMap((value) => Effect.try(() => releaseversion(value))),
   )

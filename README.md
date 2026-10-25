@@ -9,7 +9,7 @@ An open-source terminal coding agent connected to your DeepThroat account.
 Download the Windows x64 ZIP from the release page and extract it. Run `deepthroat.exe` directly, or download and review the versioned `install.ps1` to install the `deepthroat` command on your user PATH:
 
 ```powershell
-.\install.ps1 -version v0.1.9
+.\install.ps1 -version v0.1.10
 deepthroat auth login
 deepthroat
 ```
@@ -32,8 +32,8 @@ Windows x64 and Linux x64/ARM64 releases are standalone executables and require 
 Download and review the versioned installer, then run:
 
 ```bash
-curl -fsSL https://github.com/variablepy/deepthroat-cli/releases/download/v0.1.9/install.sh -o install.sh
-bash install.sh --version v0.1.9
+curl -fsSL https://github.com/variablepy/deepthroat-cli/releases/download/v0.1.10/install.sh -o install.sh
+bash install.sh --version v0.1.10
 export PATH="$HOME/.local/bin:$PATH"
 deepthroat auth login
 deepthroat

@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing version tag to release
         required: true
-        default: v0.1.9
+        default: v0.1.10
         type: string
       verifyonly:
         description: Verify an existing release without rebuilding or publishing
@@ -156,6 +156,7 @@ jobs:
           export PATH="$RUNNER_TEMP/public cli/bin:$PATH"
           test "$(deepthroat --version)" = "deepthroat $releaseversion"
           deepthroat auth --help
+          deepthroat upgrade --method standalone
           deepthroat upgrade "$releaseversion" --method standalone
           test "$(deepthroat --version)" = "deepthroat $releaseversion"
   installation:
@@ -189,6 +190,8 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $reported -ne "deepthroat $env:releaseversion") { throw 'Installed CLI version mismatch' }
           & deepthroat --help
           if ($LASTEXITCODE -ne 0) { throw 'Installed CLI could not start' }
+          & deepthroat upgrade --method standalone
+          if ($LASTEXITCODE -ne 0) { throw 'Latest release metadata lookup failed' }
 
           $reported = & $legacy --version
           if ($LASTEXITCODE -ne 0 -or $reported -ne "deepthroat $env:releaseversion") { throw 'Legacy Python launcher was not repaired' }

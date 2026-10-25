@@ -1,8 +1,7 @@
-DeepThroat CLI streams text and reasoning updates more frequently.
+DeepThroat CLI fixes automatic release discovery.
 
-- Reduced text and reasoning batching from 100ms to 32ms.
-- Preserved exact final text, fragment ordering, tool boundaries and cancellation behavior.
-- Added the streaming event-order regression suite to the release verification gate.
-- Windows x64, Linux x64 and Linux ARM64 releases remain supported.
-
-This changes stream delivery cadence, not model generation speed. Account selection, proxy routing and concurrency behavior are unchanged.
+- Corrected the GitHub metadata request that caused HTTP 415 and prevented upgrades.
+- Download failures now include the underlying HTTP or connection error.
+- Added real HTTP metadata and binary-download regression coverage.
+- Release installation checks now exercise the default latest-version lookup on Windows and Linux.
+- Includes the streaming improvements from v0.1.9.
